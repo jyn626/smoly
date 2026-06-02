@@ -19,8 +19,22 @@ form.addEventListener('submit', async (e) => {
   if (song_data) {
     const results_container = document.getElementById("results")
 
+    const themeColors = {
+      "nostalgia": "#FFE8CC",
+      "heartbreak": "#FFB3B3",
+      "hope": "#B3E5FC",
+      "loneliness": "#ADD8E6"
+    }
+
     song_data.lines && song_data.lines.forEach((line) => {
-      results_container.innerHTML += `${line.line}<br>`
+      // get all the score
+      const scores = line.theme_scores.map((theme) => theme.score)
+      const maxScore = Math.max(...scores)
+      console.log(maxScore)
+      const bestTheme = line.theme_scores.filter((theme) => theme.score == maxScore)[0].theme
+      console.log(bestTheme)
+      const bgColor = themeColors[bestTheme] || "#FFFFFF"
+      results_container.innerHTML += `<mark style="background-color: ${bgColor};">${line.line}</mark><br>`
     })
 
   }
