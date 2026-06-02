@@ -1,0 +1,21 @@
+{
+  "Tempo",
+  "Pace",
+  "Duration",
+  "Dynamic Range",
+  "each_line_theme": [
+    {
+      "line": "",
+      "theme_1": 0.52,
+      "theme_2": 0.51,
+      "theme_3": 0.12,
+      "theme_4": 0.42,
+    }
+  ],
+  "overall_theme": {
+     "theme_1": 0.52,
+     "theme_2": 0.51,
+     "theme_3": 0.12,
+     "theme_4": 0.42,
+  }
+}

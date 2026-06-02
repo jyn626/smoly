@@ -1,0 +1,372 @@
+{
+  "tempo": "86.13 BPM",
+  "pace": "medium",
+  "duration": "198.27s",
+  "energy": "loud",
+  "dynamic_range": "80.00 dB",
+  "each_line_theme": [
+    {
+      "line": "There's a place of ocean avenue where I used to sit and talk with you, we were both",
+      "theme_scores": [
+        {
+          "theme": "nostalgia",
+          "score": 0.26751577854156494
+        },
+        {
+          "theme": "heartbreak",
+          "score": 0.07683960348367691
+        },
+        {
+          "theme": "hope",
+          "score": 0.013029895722866058
+        },
+        {
+          "theme": "loneliness",
+          "score": 0.19246511161327362
+        }
+      ]
+    },
+    {
+      "line": "16 and it felt so right, sleeping all day, staying up all night, staying up all night,",
+      "theme_scores": [
+        {
+          "theme": "nostalgia",
+          "score": 0.2740843892097473
+        },
+        {
+          "theme": "heartbreak",
+          "score": 0.2004147171974182
+        },
+        {
+          "theme": "hope",
+          "score": 0.06921025365591049
+        },
+        {
+          "theme": "loneliness",
+          "score": 0.1854844093322754
+        }
+      ]
+    },
+    {
+      "line": "There's a place on the corner of Cherry Street, we would walk on the beach and not",
+      "theme_scores": [
+        {
+          "theme": "nostalgia",
+          "score": 0.1288377195596695
+        },
+        {
+          "theme": "heartbreak",
+          "score": -0.0028556212782859802
+        },
+        {
+          "theme": "hope",
+          "score": 0.05981581285595894
+        },
+        {
+          "theme": "loneliness",
+          "score": 0.0495360866189003
+        }
+      ]
+    },
+    {
+      "line": "bad feet, we were both 18 and it felt so right, sleeping all day, staying up all night, staying",
+      "theme_scores": [
+        {
+          "theme": "nostalgia",
+          "score": 0.2192239612340927
+        },
+        {
+          "theme": "heartbreak",
+          "score": 0.25440120697021484
+        },
+        {
+          "theme": "hope",
+          "score": 0.004195807501673698
+        },
+        {
+          "theme": "loneliness",
+          "score": 0.2069607973098755
+        }
+      ]
+    },
+    {
+      "line": "up all night, if I could find it now, things would get better, we could leave this town",
+      "theme_scores": [
+        {
+          "theme": "nostalgia",
+          "score": 0.24079832434654236
+        },
+        {
+          "theme": "heartbreak",
+          "score": 0.05822569504380226
+        },
+        {
+          "theme": "hope",
+          "score": 0.1574639230966568
+        },
+        {
+          "theme": "loneliness",
+          "score": 0.09767191112041473
+        }
+      ]
+    },
+    {
+      "line": "and run forever, let your waves crash down on me and take me away, yeah, yeah,",
+      "theme_scores": [
+        {
+          "theme": "nostalgia",
+          "score": 0.14232711493968964
+        },
+        {
+          "theme": "heartbreak",
+          "score": 0.02601621299982071
+        },
+        {
+          "theme": "hope",
+          "score": 0.07798764109611511
+        },
+        {
+          "theme": "loneliness",
+          "score": 0.11857189238071442
+        }
+      ]
+    },
+    {
+      "line": "there's a place to you that's here with me, it's everywhere I go, it's everything I see,",
+      "theme_scores": [
+        {
+          "theme": "nostalgia",
+          "score": 0.248899906873703
+        },
+        {
+          "theme": "heartbreak",
+          "score": 0.06828247010707855
+        },
+        {
+          "theme": "hope",
+          "score": 0.08703333139419556
+        },
+        {
+          "theme": "loneliness",
+          "score": 0.2504131495952606
+        }
+      ]
+    },
+    {
+      "line": "when I sleep I dream and it gets me by, I can make believe that you're here tonight,",
+      "theme_scores": [
+        {
+          "theme": "nostalgia",
+          "score": 0.20231762528419495
+        },
+        {
+          "theme": "heartbreak",
+          "score": 0.050064899027347565
+        },
+        {
+          "theme": "hope",
+          "score": 0.1901046633720398
+        },
+        {
+          "theme": "loneliness",
+          "score": 0.1572282612323761
+        }
+      ]
+    },
+    {
+      "line": "that you're here tonight, if I could find it now, things would get better,",
+      "theme_scores": [
+        {
+          "theme": "nostalgia",
+          "score": 0.18333815038204193
+        },
+        {
+          "theme": "heartbreak",
+          "score": 0.08879098296165466
+        },
+        {
+          "theme": "hope",
+          "score": 0.1451963484287262
+        },
+        {
+          "theme": "loneliness",
+          "score": 0.08365412056446075
+        }
+      ]
+    },
+    {
+      "line": "we could leave this town and run forever, I go somewhere, we'll be together,",
+      "theme_scores": [
+        {
+          "theme": "nostalgia",
+          "score": 0.2608148753643036
+        },
+        {
+          "theme": "heartbreak",
+          "score": 0.05517718568444252
+        },
+        {
+          "theme": "hope",
+          "score": 0.11296835541725159
+        },
+        {
+          "theme": "loneliness",
+          "score": 0.1638159304857254
+        }
+      ]
+    },
+    {
+      "line": "let your waves crash down on me and take me away, yeah,",
+      "theme_scores": [
+        {
+          "theme": "nostalgia",
+          "score": 0.1433214247226715
+        },
+        {
+          "theme": "heartbreak",
+          "score": 0.09520908445119858
+        },
+        {
+          "theme": "hope",
+          "score": 0.0506751649081707
+        },
+        {
+          "theme": "loneliness",
+          "score": 0.1746833622455597
+        }
+      ]
+    },
+    {
+      "line": "I remember the look in your eyes, when I told you that this was your advice,",
+      "theme_scores": [
+        {
+          "theme": "nostalgia",
+          "score": 0.2618339955806732
+        },
+        {
+          "theme": "heartbreak",
+          "score": 0.15175817906856537
+        },
+        {
+          "theme": "hope",
+          "score": 0.1499415934085846
+        },
+        {
+          "theme": "loneliness",
+          "score": 0.12983420491218567
+        }
+      ]
+    },
+    {
+      "line": "you were begging me not tonight, not here, not now, we're looking up at the same night sky,",
+      "theme_scores": [
+        {
+          "theme": "nostalgia",
+          "score": 0.23159413039684296
+        },
+        {
+          "theme": "heartbreak",
+          "score": 0.050414446741342545
+        },
+        {
+          "theme": "hope",
+          "score": 0.15569564700126648
+        },
+        {
+          "theme": "loneliness",
+          "score": 0.06657767295837402
+        }
+      ]
+    },
+    {
+      "line": "keep pretending the sun will not rise, we'll be together for one more night somewhere,",
+      "theme_scores": [
+        {
+          "theme": "nostalgia",
+          "score": 0.17798423767089844
+        },
+        {
+          "theme": "heartbreak",
+          "score": 0.02074342779815197
+        },
+        {
+          "theme": "hope",
+          "score": 0.22092430293560028
+        },
+        {
+          "theme": "loneliness",
+          "score": 0.09683752804994583
+        }
+      ]
+    },
+    {
+      "line": "somehow I could find it now, things would get better, we could leave this town and run forever,",
+      "theme_scores": [
+        {
+          "theme": "nostalgia",
+          "score": 0.2482680082321167
+        },
+        {
+          "theme": "heartbreak",
+          "score": 0.05729781091213226
+        },
+        {
+          "theme": "hope",
+          "score": 0.1484403759241104
+        },
+        {
+          "theme": "loneliness",
+          "score": 0.0925002321600914
+        }
+      ]
+    },
+    {
+      "line": "I go somewhere, we'll be together, let your waves crash down on me and take me away, yeah, yeah,",
+      "theme_scores": [
+        {
+          "theme": "nostalgia",
+          "score": 0.17601904273033142
+        },
+        {
+          "theme": "heartbreak",
+          "score": 0.046769000589847565
+        },
+        {
+          "theme": "hope",
+          "score": 0.07432666420936584
+        },
+        {
+          "theme": "loneliness",
+          "score": 0.200918510556221
+        }
+      ]
+    },
+    {
+      "line": "yeah, yeah, yeah, yeah, yeah, yeah, yeah",
+      "theme_scores": [
+        {
+          "theme": "nostalgia",
+          "score": 0.08616030216217041
+        },
+        {
+          "theme": "heartbreak",
+          "score": 0.012223479337990284
+        },
+        {
+          "theme": "hope",
+          "score": 0.08733052015304565
+        },
+        {
+          "theme": "loneliness",
+          "score": 0.07347451150417328
+        }
+      ]
+    }
+  ],
+  "overall_theme_score": {
+    "nostalgia": 0.2581385374069214,
+    "heartbreak": 0.153580442070961,
+    "hope": 0.099238820374012,
+    "loneliness": 0.14055000245571136
+  }
+}
