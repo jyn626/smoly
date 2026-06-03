@@ -4,7 +4,8 @@ import os
 from flask.json import jsonify
 import librosa
 import numpy as np
-from faster_whisper import WhisperModel
+import syncedlyrics
+from mutagen.easyid3 import EasyID3
 from sentence_transformers import SentenceTransformer, util
 import json
 import uuid
@@ -21,14 +22,6 @@ model = SentenceTransformer(
     "all-MiniLM-L6-v2"
 )
 
-# Whisper
-# model_size = "large-v3"
-w_model = WhisperModel(
-    "base",
-    device="cpu",
-    compute_type="int8"
-)
-
 # Keane - Somewhere Only We Know.mp3
 audio_file = "No Other Heart - Mac DeMarco.mp3"
 data = {}
@@ -42,39 +35,34 @@ themes = {
 
 
 def transcribe(audio_file):
+    print("transcribing...")
 
-    segments, t = w_model.transcribe(audio_file, word_timestamps=True)
-    # words_timeline = []
-    # lyrics_timeline = [] 
-    lines = []
-    lyrics = ""
-    
-    for segment in segments:
-        lines.append(segment.text)
-        
-        # lyrics_timeline.append({
-        #     "start": segment.start,
-        #     "word": segment.text,
-        #     "end": segment.end
-        # })
-        
-        lyrics += segment.text + '\n'
+    filename_without_ext = audio_file.rsplit('.', 1)[0].split('/')[-1]
 
-    # for word in segment.words:
-    #     words_timeline.append(
-    #     {
-    #         "start": word.start,
-    #         "word": word.word,
-    #         "end": word.end
-    #     }
-    #     ) 
-        
-    # print("[%.2fs -> %.2fs]: %s", (word.start, word.end, word.word))
+    try:
+        audio = EasyID3(audio_file)
+        artist = audio.get('artist', [''])[0]
+        title = audio.get('title', [''])[0]
+
+        if artist and title:
+            search_query = f"{title} {artist}"
+        else:
+            search_query = filename_without_ext
+    except:
+        search_query = filename_without_ext
+
+    lyrics = syncedlyrics.search(search_query)
+
+    if not lyrics:
+        return []
+
+    lines = [line for line in lyrics.strip().split('\n') if line]
     data["lyrics"] = lyrics
-    return lines
+    return lines 
 
 
 def beat_detection(audio_file):
+    print("detecting beats...")
     global data
     y, sr = librosa.load(audio_file)
 
