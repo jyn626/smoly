@@ -30,7 +30,16 @@ themes = {
     "nostalgia": "longing for the past and meaningful memories",
     "heartbreak": "emotional pain caused by losing someone",
     "hope": "belief in a better future",
-    "loneliness": "feeling isolated and disconnected from others"
+    "loneliness": "feeling isolated and disconnected from others",
+    "love": "romantic feelings and affection",
+    "joy": "happiness and celebration",
+    "sadness": "deep sorrow and melancholy",
+    "anger": "rage, frustration, and resentment",
+    "empowerment": "strength, confidence, and self-belief",
+    "loss": "grief and mourning",
+    "freedom": "liberation and breaking free",
+    "regret": "remorse and wishing things were different",
+    "despair": "hopelessness and deep darkness"
 }
 
 
@@ -79,14 +88,14 @@ def beat_detection(audio_file):
     rms_db = librosa.amplitude_to_db(rms)
     dynamic_range = np.max(rms_db) - np.min(rms_db)
 
-    if (bpm < 80): pace = "slow"
-    elif (bpm > 80 and bpm < 120): pace = "medium"
-    else: pace = "fast"
+    if (bpm < 80): pace = "Slow"
+    elif (bpm > 80 and bpm < 120): pace = "Medium"
+    else: pace = "Fast"
 
-    if (avg_rms < 0.05): energy = "quiet"
-    elif (avg_rms > 0.05 and avg_rms < 0.15): energy = "medium"
+    if (avg_rms < 0.05): energy = "Quiet"
+    elif (avg_rms > 0.05 and avg_rms < 0.15): energy = "Medium"
     else:
-        energy = "loud"
+        energy = "Loud"
     
     data['tempo'] = "%.2f BPM" % (bpm)
     data['pace'] = pace
@@ -143,6 +152,7 @@ def analyze():
         
         # overall theme
         for theme, desc in themes.items():
+            print(theme)
             similarities = util.cos_sim(model.encode(desc), model.encode(data["lyrics"]))
             overall_theme_score[theme] += similarities.item()
 
