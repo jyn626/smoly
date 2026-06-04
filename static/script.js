@@ -44,6 +44,8 @@ async function handleUpload() {
 
     const data = await response.json();
     const song_data = data.data
+    let topTags = data.top_tags.tag
+    console.log(data)
 
     if (song_data) {
       if (!song_data.lines || song_data.lines.length === 0) {
@@ -68,6 +70,11 @@ async function handleUpload() {
             `<div><strong>${theme}:</strong> ${(score * 100).toFixed(2)}%</div>`
             ).join('')}
           </div>
+        </div>
+
+        <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #ddd;">
+          <h4 style="margin-top: 0; margin-bottom: 8px;">Top tags</h4>
+          <div>${topTags.map((tag) => `<p>${tag.name}</p>`)}</div>
         </div>
       </div>`
 
