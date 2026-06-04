@@ -45,10 +45,41 @@ themes = {
 }
 
 
+def get_top_tags(artist, track):
+    # get tags using last.fm api :)
+    params = {
+        "method": "track.getTopTags",
+        "artist": artist,
+        "track": track,
+        "api_key": LASTFM_API_KEY,
+        "format": "json"
+    }
+    try:
+
+        response = requests.get(lastfm_base, params=params, timeout=10)
+        print(response)
+        response.raise_for_status()
+        data = response.json()
+
+        if "error" in data:
+            print(f"Last.fm Error {data['error']}: {data['message']}")
+
+        print(data)
+
+        output_fname = uuid.uuid4()
+        with open(f'./outputs/tags/{output_fname}.json', "w") as f:
+            json.dump(data, f, indent=2)
+
+        return data
+    except requests.exceptions.HTTPError as err:
+        print(f"HTTP error occurred: {err}")
+
+
 def transcribe(audio_file):
     print("transcribing...")
-
+    global data
     filename_without_ext = audio_file.rsplit('.', 1)[0].split('/')[-1]
+    toptags = None
 
     try:
         audio = EasyID3(audio_file)
@@ -60,35 +91,8 @@ def transcribe(audio_file):
         print(artist)
 
         if artist:
-
             search_query = f"{track} {artist}"
-
-            # get tags using last.fm api :)
-            params = {
-                "method": "track.getTopTags",
-                "artist": artist,
-                "track": track,
-                "api_key": LASTFM_API_KEY,
-                "format": "json"
-            }
-            try:
-
-                response = requests.get(lastfm_base, params=params, timeout=10)
-                print(response)
-                response.raise_for_status()
-                _data = response.json()
-
-                if "error" in _data:
-                    print(f"Last.fm Error {data['error']}: {data['message']}")
-
-                print(_data)
-
-                output_fname = uuid.uuid4()
-                with open(f'./outputs/tags/{output_fname}.json', "w") as f:
-                    json.dump(_data, f, indent=2)
-            except requests.exceptions.HTTPError as err:
-                print(f"HTTP error occurred: {err}")
-
+            top_tags = get_top_tags(artist, track)
         else:
             search_query = filename_without_ext
 
@@ -103,7 +107,8 @@ def transcribe(audio_file):
 
     lines = [line for line in lyrics.strip().split('\n') if line]
     data["lyrics"] = lyrics
-    return lines
+
+    return lines, top_tags["toptags"]
 
 
 def beat_detection(audio_file):
@@ -176,7 +181,7 @@ def analyze():
         audio_file = path
         beat_detection(audio_file)
 
-        lines = transcribe(audio_file)
+        lines, top_tags = transcribe(audio_file)
         lines_embedding = model.encode(lines)
 
         overall_theme_score = {theme: 0 for theme in themes}
@@ -221,5 +226,7 @@ def analyze():
         "success": True,
         "message": "File uploaded successfully",
         "filename": filename,
-        "data": data
+        "data": data,
+        "top_tags": top_tags
+
     })
