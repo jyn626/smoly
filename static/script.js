@@ -69,7 +69,7 @@ async function handleUpload() {
         <h4 style="margin-top: 0; margin-bottom: 8px;">Overall Theme Rating</h4>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.9em;">
           ${Object.entries(song_data.overall_theme_score).map(([theme, score]) =>
-          `<div><strong>${theme}:</strong> ${score.toFixed(2)}</div>`
+          `<div><strong>${theme}:</strong> ${(score * 100).toFixed(2)}%</div>`
           ).join('')}
         </div>
       </div>

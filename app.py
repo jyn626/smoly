@@ -1,12 +1,12 @@
 from flask import Flask, render_template, request, redirect
 from werkzeug.utils import secure_filename
-import os
+from sentence_transformers import SentenceTransformer, util
 from flask.json import jsonify
+from mutagen.easyid3 import EasyID3
+import os
 import librosa
 import numpy as np
 import syncedlyrics
-from mutagen.easyid3 import EasyID3
-from sentence_transformers import SentenceTransformer, util
 import json
 import uuid
 
