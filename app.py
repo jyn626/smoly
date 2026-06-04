@@ -15,14 +15,10 @@ UPLOAD_FOLDER = 'uploads'
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# def allowed_file(filename):
-#     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
 model = SentenceTransformer(
     "all-MiniLM-L6-v2"
 )
 
-# Keane - Somewhere Only We Know.mp3
 audio_file = "No Other Heart - Mac DeMarco.mp3"
 data = {}
 
@@ -67,7 +63,7 @@ def transcribe(audio_file):
 
     lines = [line for line in lyrics.strip().split('\n') if line]
     data["lyrics"] = lyrics
-    return lines 
+    return lines
 
 
 def beat_detection(audio_file):
@@ -80,7 +76,7 @@ def beat_detection(audio_file):
 
     tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr)
     bpm = tempo[0]
-    duration = librosa.get_duration(y=y, sr=sr) 
+    duration = librosa.get_duration(y=y, sr=sr)
 
     rms = librosa.feature.rms(y=y)
     avg_rms = np.mean(rms)
@@ -96,17 +92,12 @@ def beat_detection(audio_file):
     elif (avg_rms > 0.05 and avg_rms < 0.15): energy = "Medium"
     else:
         energy = "Loud"
-    
+
     data['tempo'] = "%.2f BPM" % (bpm)
     data['pace'] = pace
     data['duration'] = "%.2fs" % (duration)
     data['energy'] = energy
     data['dynamic_range'] = "%.2f dB" % (dynamic_range)
-
-# full_lyrics = "\n".join(lines)
-# lines_embedding = model.encode(lines)
-
-# print('Saved file')
 
 
 @app.route("/")
@@ -142,14 +133,14 @@ def analyze():
 
     try:
         print('==== processing ====')
-        audio_file = './uploads/' + filename
+        audio_file = path
         beat_detection(audio_file)
-        
+
         lines = transcribe(audio_file)
         lines_embedding = model.encode(lines)
-        
+
         overall_theme_score = {theme: 0 for theme in themes}
-        
+
         # overall theme
         for theme, desc in themes.items():
             print(theme)
@@ -164,18 +155,18 @@ def analyze():
                 "line": line.strip(),
                 "theme_scores": []
             }
-        
+
             for theme, desc in themes.items():
                 similarities = util.cos_sim(embedding, model.encode(desc))
 
                 _line["theme_scores"].append({
                 "theme": theme,
-                "score": similarities.item() 
+                "score": similarities.item()
                 })
 
             data['lines'].append(_line)
         data['overall_theme_score'] = overall_theme_score
-        
+
         output_fname = uuid.uuid4()
         with open(f'./outputs/{output_fname}.json', "w") as f:
             json.dump(data, f, indent=2)
