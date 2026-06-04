@@ -74,7 +74,11 @@ async function handleUpload() {
 
         <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #ddd;">
           <h4 style="margin-top: 0; margin-bottom: 8px;">Top tags</h4>
-          <div>${topTags.map((tag) => `<p>${tag.name}</p>`)}</div>
+          <div>${
+            topTags.length > 0 ?
+            topTags.map((tag) => `<p>${tag.name}</p>`)
+            : `<p>There are no <b>top tags</b> for this track.</p>`
+          }</div>
         </div>
       </div>`
 
