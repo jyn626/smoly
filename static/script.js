@@ -36,72 +36,76 @@ async function handleUpload() {
   if (fileInput.files.length > 0) {
     formData.append('file', fileInput.files[0])
   }
+  try {
+    const response = await fetch("/analyze", {
+      method: "POST",
+      body: formData,
+    });
 
-  const response = await fetch("/analyze", {
-    method: "POST",
-    body: formData,
-  });
+    const data = await response.json();
+    const song_data = data.data
 
-  const data = await response.json();
-  const song_data = data.data
-  console.log(data);
-  console.log(song_data.lines);
+    if (song_data) {
+      if (!song_data.lines || song_data.lines.length === 0) {
+        results_container.innerHTML += '<p style="color: red;">Lyrics cannot be found. Please try again.</p>'
+        return
+      }
 
-  loading.style.display = 'none'
+      results_container.innerHTML += `
+      <div class="song_analysis_container">
+        <h3 class="title"style="margin-top: 0;">Song Analysis</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.95em;">
+          <div><strong>Tempo:</strong> ${song_data.tempo}</div>
+          <div><strong>Pace:</strong> ${song_data.pace}</div>
+          <div><strong>Duration:</strong> ${song_data.duration}</div>
+          <div><strong>Energy:</strong> ${song_data.energy}</div>
+          <div><strong>Dynamic Range:</strong> ${song_data.dynamic_range}</div>
+        </div>
+        <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #ddd;">
+          <h4 style="margin-top: 0; margin-bottom: 8px;">Overall Theme Rating</h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.9em;">
+            ${Object.entries(song_data.overall_theme_score).map(([theme, score]) =>
+            `<div><strong>${theme}:</strong> ${(score * 100).toFixed(2)}%</div>`
+            ).join('')}
+          </div>
+        </div>
+      </div>`
 
-  if (song_data) {
-    if (!song_data.lines || song_data.lines.length === 0) {
-      results_container.innerHTML += '<p style="color: red;">Lyrics cannot be found. Please try again.</p>'
-      return
+      song_data.lines && song_data.lines.forEach((line_data) => {
+        const scores = line_data.theme_scores.map((theme) => theme.score)
+        const line = line_data.line.split(' ').slice(1).join(' ')
+
+        if (line == '') return;
+
+        const timestamp = line_data.line.split(' ')[0]
+        const maxScore = Math.max(...scores)
+        const bestThemeObj = line_data.theme_scores.filter((theme) => theme.score == maxScore)[0]
+        const bestTheme = bestThemeObj.theme
+        const bestScore = (bestThemeObj.score * 100).toFixed(0)
+        const bgColor = themeColors[bestTheme] || "#FFFFFF"
+        results_container.innerHTML += `
+          <span
+            style="
+              background-color: ${bgColor};
+              padding: 2px 4px;
+              border-radius: 2px;
+              margin-right: 8px;
+              font-size: 0.8em;
+              display: inline-block;
+              font-weight: lighter;
+              color: #333;
+              "
+              >${timestamp}</span><mark style="background-color: ${bgColor};">${line} <sup style="font-size: 0.7em; opacity: 0.7;">${bestTheme} ${bestScore}%</sup></mark><br>`
+      })
     }
 
-    results_container.innerHTML += `
-    <div class="song_analysis_container">
-      <h3 class="title"style="margin-top: 0;">Song Analysis</h3>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.95em;">
-        <div><strong>Tempo:</strong> ${song_data.tempo}</div>
-        <div><strong>Pace:</strong> ${song_data.pace}</div>
-        <div><strong>Duration:</strong> ${song_data.duration}</div>
-        <div><strong>Energy:</strong> ${song_data.energy}</div>
-        <div><strong>Dynamic Range:</strong> ${song_data.dynamic_range}</div>
-      </div>
-      <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #ddd;">
-        <h4 style="margin-top: 0; margin-bottom: 8px;">Overall Theme Rating</h4>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.9em;">
-          ${Object.entries(song_data.overall_theme_score).map(([theme, score]) =>
-          `<div><strong>${theme}:</strong> ${(score * 100).toFixed(2)}%</div>`
-          ).join('')}
-        </div>
-      </div>
-    </div>`
-
-    song_data.lines && song_data.lines.forEach((line_data) => {
-      const scores = line_data.theme_scores.map((theme) => theme.score)
-      const line = line_data.line.split(' ').slice(1).join(' ')
-
-      if (line == '') return;
-
-      const timestamp = line_data.line.split(' ')[0]
-      const maxScore = Math.max(...scores)
-      const bestThemeObj = line_data.theme_scores.filter((theme) => theme.score == maxScore)[0]
-      const bestTheme = bestThemeObj.theme
-      const bestScore = (bestThemeObj.score * 100).toFixed(0)
-      const bgColor = themeColors[bestTheme] || "#FFFFFF"
-      results_container.innerHTML += `
-        <span
-          style="
-            background-color: ${bgColor};
-            padding: 2px 4px;
-            border-radius: 2px;
-            margin-right: 8px;
-            font-size: 0.8em;
-            display: inline-block;
-            font-weight: lighter;
-            color: #333;
-            "
-            >${timestamp}</span><mark style="background-color: ${bgColor};">${line} <sup style="font-size: 0.7em; opacity: 0.7;">${bestTheme} ${bestScore}%</sup></mark><br>`
-    })
+  } catch (error) {
+    results_container.innerHTML = ""
+    console.log(error)
+  } finally {
+    loading.style.display = 'none'
   }
+
 }
 
 fileInput.addEventListener('change', handleUpload)

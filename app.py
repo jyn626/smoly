@@ -9,6 +9,12 @@ import numpy as np
 import syncedlyrics
 import json
 import uuid
+from dotenv import load_dotenv
+import requests
+
+load_dotenv()
+
+LASTFM_API_KEY = os.environ.get("LASTFM_API_KEY")
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'uploads'
@@ -18,7 +24,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 model = SentenceTransformer(
     "all-MiniLM-L6-v2"
 )
-
+lastfm_base = "http://ws.audioscrobbler.com/2.0/"
 data = {}
 
 # TODO: add more themes later, or configure this to uhh increase accuracy maybe
@@ -47,14 +53,47 @@ def transcribe(audio_file):
     try:
         audio = EasyID3(audio_file)
         artist = audio.get('artist', [''])[0]
-        title = audio.get('title', [''])[0] || filename_without_ext
+        track = audio.get('title', [''])[0] or filename_without_ext
+
+        track = " ".join(word.capitalize() for word in track.split(" "))
+        print(track)
+        print(artist)
 
         if artist:
-            search_query = f"{title} {artist}"
+
+            search_query = f"{track} {artist}"
+
+            # get tags using last.fm api :)
+            params = {
+                "method": "track.getTopTags",
+                "artist": artist,
+                "track": track,
+                "api_key": LASTFM_API_KEY,
+                "format": "json"
+            }
+            try:
+
+                response = requests.get(lastfm_base, params=params, timeout=10)
+                print(response)
+                response.raise_for_status()
+                _data = response.json()
+
+                if "error" in _data:
+                    print(f"Last.fm Error {data['error']}: {data['message']}")
+
+                print(_data)
+
+                output_fname = uuid.uuid4()
+                with open(f'./outputs/tags/{output_fname}.json', "w") as f:
+                    json.dump(_data, f, indent=2)
+            except requests.exceptions.HTTPError as err:
+                print(f"HTTP error occurred: {err}")
+
         else:
             search_query = filename_without_ext
 
-    except:
+    except Exception as e:
+        print(f"Metadata error: {e}")
         search_query = filename_without_ext
 
     lyrics = syncedlyrics.search(search_query)

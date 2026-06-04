@@ -3,3 +3,4 @@ uploads/*
 __pycache__
 temp.json
 output.json
+.env
