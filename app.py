@@ -19,9 +19,9 @@ model = SentenceTransformer(
     "all-MiniLM-L6-v2"
 )
 
-audio_file = "No Other Heart - Mac DeMarco.mp3"
 data = {}
 
+# TODO: add more themes later, or configure this to uhh increase accuracy maybe
 themes = {
     "nostalgia": "longing for the past and meaningful memories",
     "heartbreak": "emotional pain caused by losing someone",
@@ -47,12 +47,13 @@ def transcribe(audio_file):
     try:
         audio = EasyID3(audio_file)
         artist = audio.get('artist', [''])[0]
-        title = audio.get('title', [''])[0]
+        title = audio.get('title', [''])[0] || filename_without_ext
 
-        if artist and title:
+        if artist:
             search_query = f"{title} {artist}"
         else:
             search_query = filename_without_ext
+
     except:
         search_query = filename_without_ext
 
