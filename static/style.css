@@ -34,7 +34,13 @@ input {
 button {
   background-color: lightcoral;
   border: none;
-  padding: 8px;
+  padding: 8px 12px 8px 12px;
+  font-weight: light;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: rgb(238, 109, 109);
 }
 
 .results {

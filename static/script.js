@@ -18,12 +18,12 @@ const themeColors = {
 }
 
 const legendHtml = Object.entries(themeColors).map(([theme, color]) =>
-  `<span style="display: inline-block; margin-right: 15px; margin-bottom: 8px;">
-    <span style="background-color: ${color}; padding: 3px 6px; border-radius: 4px; font-size: 0.85em; font-weight: bold; color: #333;">${theme}</span>
+  `<span style="display: inline-block; margin-right: 4px; margin-bottom: 8px;">
+    <span style="background-color: ${color}; padding: 3px 6px; border-radius: 2px; font-size: 0.85em; font-weight: light; color: #333;">${theme}</span>
   </span>`
 ).join('')
 
-results_container.innerHTML = `<div style="margin-bottom: 20px; padding: 10px; background-color: #f9f9f9; border-radius: 4px;">${legendHtml}</div>`
+results_container.innerHTML = `<div style="margin-bottom: 20px; padding: 10px; border-radius: 4px;">${legendHtml}</div>`
 
 
 form.addEventListener('submit', async (e) => {
@@ -34,7 +34,7 @@ form.addEventListener('submit', async (e) => {
   const submitBtn = form.querySelector('button[type="submit"]')
 
   loading.style.display = 'block'
-  results_container.innerHTML = `<div style="margin-bottom: 20px; padding: 10px; background-color: #f9f9f9; border-radius: 4px;">${legendHtml}</div>`
+  // results_container.innerHTML = `<div style="margin-bottom: 20px; padding: 10px; background-color: #f9f9f9; border-radius: 4px;">${legendHtml}</div>`
   submitBtn.disabled = true
 
   const formData = new FormData(form);
@@ -64,7 +64,7 @@ form.addEventListener('submit', async (e) => {
       </span>`
     ).join('')
 
-    results_container.innerHTML += `<div style="margin-bottom: 20px; padding: 15px; background-color: #f0f0f0; border-radius: 4px;">
+    results_container.innerHTML += `<div style="margin-bottom: 20px; padding: 15px; border:1px solid #f0f0f0; border-radius: 4px;">
       <h3 style="margin-top: 0;">Song Analysis</h3>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.95em;">
         <div><strong>Tempo:</strong> ${song_data.tempo}</div>
@@ -77,8 +77,8 @@ form.addEventListener('submit', async (e) => {
         <h4 style="margin-top: 0; margin-bottom: 8px;">Overall Theme Rating</h4>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.9em;">
           ${Object.entries(song_data.overall_theme_score).map(([theme, score]) =>
-            `<div><strong>${theme}:</strong> ${score.toFixed(2)}</div>`
-          ).join('')}
+      `<div><strong>${theme}:</strong> ${score.toFixed(2)}</div>`
+    ).join('')}
         </div>
       </div>
     </div>`
@@ -90,7 +90,10 @@ form.addEventListener('submit', async (e) => {
       const timestamp = line_data.line.split(' ')[0]
       const maxScore = Math.max(...scores)
       console.log(maxScore)
-      const bestTheme = line_data.theme_scores.filter((theme) => theme.score == maxScore)[0].theme
+      const bestThemeObj = line_data.theme_scores.filter((theme) => theme.score == maxScore)[0]
+      const bestTheme = bestThemeObj.theme
+      const bestScore = (bestThemeObj.score * 100).toFixed(0)
+      console.log(bestTheme)
       const bgColor = themeColors[bestTheme] || "#FFFFFF"
       results_container.innerHTML += `
         <span
@@ -104,7 +107,7 @@ form.addEventListener('submit', async (e) => {
             font-weight: bold;
             color: #333;
             "
-            >${timestamp}</span><mark style="background-color: ${bgColor};">${line}</mark><br>`
+            >${timestamp}</span><mark style="background-color: ${bgColor};">${line} <sup style="font-size: 0.7em; opacity: 0.7;">${bestTheme} ${bestScore}%</sup></mark><br>`
     })
 
   }
