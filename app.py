@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect
 from werkzeug.utils import secure_filename
 from sentence_transformers import SentenceTransformer, util
 from flask.json import jsonify
+from dotenv import load_dotenv
 from mutagen.easyid3 import EasyID3
 import os
 import librosa
@@ -9,8 +10,8 @@ import numpy as np
 import syncedlyrics
 import json
 import uuid
-from dotenv import load_dotenv
 import requests
+import textstat
 
 load_dotenv()
 
@@ -26,7 +27,7 @@ model = SentenceTransformer(
 )
 lastfm_base = "http://ws.audioscrobbler.com/2.0/"
 data = {}
-
+data['lines'] = []
 # TODO: add more themes later, or configure this to uhh increase accuracy maybe
 themes = {
     "nostalgia": "longing for the past and meaningful memories",
@@ -77,7 +78,6 @@ def get_top_tags(artist, track):
 
 def transcribe(audio_file):
     print("transcribing...")
-    global data
     filename_without_ext = audio_file.rsplit('.', 1)[0].split('/')[-1]
     toptags = None
 
@@ -100,6 +100,7 @@ def transcribe(audio_file):
         print(f"Metadata error: {e}")
         search_query = filename_without_ext
 
+    print(search_query)
     lyrics = syncedlyrics.search(search_query)
 
     if not lyrics:
@@ -113,7 +114,6 @@ def transcribe(audio_file):
 
 def beat_detection(audio_file):
     print("detecting beats...")
-    global data
     y, sr = librosa.load(audio_file)
 
     pace = ""
@@ -143,6 +143,41 @@ def beat_detection(audio_file):
     data['duration'] = "%.2fs" % (duration)
     data['energy'] = energy
     data['dynamic_range'] = "%.2f dB" % (dynamic_range)
+
+
+def rate_overall_theme():
+    if not data["lyrics"]:
+        return
+
+    overall_theme_score = {theme: 0 for theme in themes}
+
+    # overall theme
+    for theme, desc in themes.items():
+        similarities = util.cos_sim(model.encode(desc), model.encode(data["lyrics"]))
+        overall_theme_score[theme] += similarities.item()
+
+    data['overall_theme_score'] = overall_theme_score
+
+def rate_line_theme(line, embedding):
+    """ Get theme and total syllables for each line """
+
+    total_syllables = textstat.syllable_count(line)
+
+    _line = {
+        "line": line.strip(),
+        "theme_scores": [],
+        "total_syllables": total_syllables
+    }
+
+    for theme, desc in themes.items():
+        similarities = util.cos_sim(embedding, model.encode(desc))
+
+        _line["theme_scores"].append({
+        "theme": theme,
+        "score": similarities.item()
+        })
+
+    data['lines'].append(_line)
 
 
 @app.route("/")
@@ -184,33 +219,11 @@ def analyze():
         lines, top_tags = transcribe(audio_file)
         lines_embedding = model.encode(lines)
 
-        overall_theme_score = {theme: 0 for theme in themes}
+        rate_overall_theme()
 
-        # overall theme
-        for theme, desc in themes.items():
-            print(theme)
-            similarities = util.cos_sim(model.encode(desc), model.encode(data["lyrics"]))
-            overall_theme_score[theme] += similarities.item()
-
-        data['lines'] = []
 
         for (line, embedding) in zip(lines, lines_embedding):
-            """ Get theme for each line """
-            _line = {
-                "line": line.strip(),
-                "theme_scores": []
-            }
-
-            for theme, desc in themes.items():
-                similarities = util.cos_sim(embedding, model.encode(desc))
-
-                _line["theme_scores"].append({
-                "theme": theme,
-                "score": similarities.item()
-                })
-
-            data['lines'].append(_line)
-        data['overall_theme_score'] = overall_theme_score
+            rate_line_theme(line, embedding)
 
         output_fname = uuid.uuid4()
         with open(f'./outputs/{output_fname}.json', "w") as f:
