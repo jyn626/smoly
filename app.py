@@ -192,7 +192,7 @@ def index():
 
 @app.route("/analyze", methods=["POST"])
 def analyze():
-
+    data.clear()
     file = request.files.get("file")
 
     if not file:
