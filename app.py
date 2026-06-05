@@ -4,7 +4,7 @@ from sentence_transformers import SentenceTransformer, util
 from flask.json import jsonify
 from dotenv import load_dotenv
 from mutagen.easyid3 import EasyID3
-from vaderSentiment import SentimentIntensityAnalyzer
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import os
 import librosa
 import numpy as np
@@ -30,7 +30,7 @@ lastfm_base = "http://ws.audioscrobbler.com/2.0/"
 analyzer = SentimentIntensityAnalyzer()
 
 data = {}
-data['lines'] = []
+
 # TODO: add more themes later, or configure this to uhh increase accuracy maybe
 themes = {
     "nostalgia": "longing for the past and meaningful memories",
@@ -108,13 +108,26 @@ def transcribe(audio_file):
     print(search_query)
     lyrics = syncedlyrics.search(search_query)
     sentiment = analyzer.polarity_scores(lyrics)
+    compound = sentiment["compound"]
+    mood = ""
+    if compound >= 0.5:
+        mood = "Very Positive"
+    elif compound >= 0.2:
+        mood = "Positive"
+    elif compound > -0.2:
+        mood = "Balanced"
+    elif compound > -0.5:
+        mood = "Melancholic"
+    else:
+        mood = "Very Emotional"
+    print(mood)
 
     if not lyrics:
         return []
 
     lines = [line for line in lyrics.strip().split('\n') if line]
 
-    return lyrics, lines, top_tags["toptags"], sentiment
+    return lyrics, lines, top_tags["toptags"], mood
 
 
 def beat_detection(audio_file):
@@ -178,8 +191,8 @@ def rate_line_theme(line, embedding):
         similarities = util.cos_sim(embedding, model.encode(desc))
 
         _line["theme_scores"].append({
-        "theme": theme,
-        "score": similarities.item()
+            "theme": theme,
+            "score": similarities.item()
         })
 
     data['lines'].append(_line)
@@ -193,6 +206,8 @@ def index():
 @app.route("/analyze", methods=["POST"])
 def analyze():
     data.clear()
+    data['lines'] = []
+    
     file = request.files.get("file")
 
     if not file:
@@ -221,23 +236,26 @@ def analyze():
         audio_file = path
         beat_detection(audio_file)
 
-        lyrics, lines, top_tags, sentiment = transcribe(audio_file)
+        lyrics, lines, top_tags, mood = transcribe(audio_file)
         lines_embedding = model.encode(lines)
 
-        rate_overall_theme()
 
 
         for (line, embedding) in zip(lines, lines_embedding):
             rate_line_theme(line, embedding)
 
         data["lyrics"] = lyrics
-        data["sentiment"] =  sentiment
+        data["mood"] =  mood
+
+        rate_overall_theme()
+
 
         output_fname = uuid.uuid4()
         with open(f'./outputs/{output_fname}.json', "w") as f:
             json.dump(data, f, indent=2)
 
     except Exception as e:
+        print(f"POST /analyze ERROR: {e}")
         return jsonify({
             "success": False,
             "error": str(e)
