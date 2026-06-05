@@ -4,6 +4,7 @@ from sentence_transformers import SentenceTransformer, util
 from flask.json import jsonify
 from dotenv import load_dotenv
 from mutagen.easyid3 import EasyID3
+from vaderSentiment import SentimentIntensityAnalyzer
 import os
 import librosa
 import numpy as np
@@ -26,6 +27,8 @@ model = SentenceTransformer(
     "all-MiniLM-L6-v2"
 )
 lastfm_base = "http://ws.audioscrobbler.com/2.0/"
+analyzer = SentimentIntensityAnalyzer()
+
 data = {}
 data['lines'] = []
 # TODO: add more themes later, or configure this to uhh increase accuracy maybe
@@ -92,6 +95,8 @@ def transcribe(audio_file):
 
         if artist:
             search_query = f"{track} {artist}"
+
+            # TODO: get top tags outside this function
             top_tags = get_top_tags(artist, track)
         else:
             search_query = filename_without_ext
@@ -102,14 +107,14 @@ def transcribe(audio_file):
 
     print(search_query)
     lyrics = syncedlyrics.search(search_query)
+    sentiment = analyzer.polarity_scores(lyrics)
 
     if not lyrics:
         return []
 
     lines = [line for line in lyrics.strip().split('\n') if line]
-    data["lyrics"] = lyrics
 
-    return lines, top_tags["toptags"]
+    return lyrics, lines, top_tags["toptags"], sentiment
 
 
 def beat_detection(audio_file):
@@ -216,7 +221,7 @@ def analyze():
         audio_file = path
         beat_detection(audio_file)
 
-        lines, top_tags = transcribe(audio_file)
+        lyrics, lines, top_tags, sentiment = transcribe(audio_file)
         lines_embedding = model.encode(lines)
 
         rate_overall_theme()
@@ -224,6 +229,9 @@ def analyze():
 
         for (line, embedding) in zip(lines, lines_embedding):
             rate_line_theme(line, embedding)
+
+        data["lyrics"] = lyrics
+        data["sentiment"] =  sentiment
 
         output_fname = uuid.uuid4()
         with open(f'./outputs/{output_fname}.json', "w") as f:
@@ -237,7 +245,6 @@ def analyze():
 
     return jsonify({
         "success": True,
-        "message": "File uploaded successfully",
         "filename": filename,
         "data": data,
         "top_tags": top_tags
