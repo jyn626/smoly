@@ -98,13 +98,13 @@ window.addEventListener('DOMContentLoaded', () => {
 
         song_data.lines && song_data.lines.forEach((line_data) => {
           const scores = line_data.theme_scores.map((theme) => theme.score)
-          const line = line_data.line.split(' ').slice(1).join(' ')
+          const line = line_data.line
 
           if (line == '') return;
 
-          const timestamp = line_data.line.split(' ')[0]
-          timestamps.push(formatTimestamp(timestamp))
-          lines.push(line)
+          // const timestamp = line_data.line.split(' ')[0]
+          // timestamps.push(formatTimestamp(timestamp))
+          // lines.push(line)
           const maxScore = Math.max(...scores)
           const bestThemeObj = line_data.theme_scores.filter((theme) => theme.score == maxScore)[0]
           const bestTheme = bestThemeObj.theme
@@ -122,7 +122,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 font-weight: lighter;
                 color: #333;
                 "
-                >${timestamp}</span><mark style="background-color: ${bgColor};">${line} <sup style="font-size: 0.7em; opacity: 0.7;">${bestTheme} ${bestScore}%</sup></mark><br>`
+                ></span><mark style="background-color: ${bgColor};">${line} <sup style="font-size: 0.7em; opacity: 0.7;">${bestTheme} ${bestScore}%</sup></mark><br>`
         })
 
         console.log(timestamps)
@@ -142,26 +142,26 @@ window.addEventListener('DOMContentLoaded', () => {
 
 
   // audio events
-  audioEl.addEventListener('timeupdate', () => {
-    seconds  = audioEl.currentTime
-
-    console.log(seconds)
-
-    let index = 0
-
-    for (let i = 0; i < timestamps.length; i++) {
-      if (seconds >= timestamps[i]) {
-        index = i
-      } else {
-        break
-      }
-
-    }
-
-    console.log(lines[index])
-
-    lyricsVisualizer.innerHTML = `<p>${lines[index]}</p>`
-
-  })
+  // audioEl.addEventListener('timeupdate', () => {
+  //   seconds  = audioEl.currentTime
+  //
+  //   console.log(seconds)
+  //
+  //   let index = 0
+  //
+  //   for (let i = 0; i < timestamps.length; i++) {
+  //     if (seconds >= timestamps[i]) {
+  //       index = i
+  //     } else {
+  //       break
+  //     }
+  //
+  //   }
+  //
+  //   console.log(lines[index])
+  //
+  //   lyricsVisualizer.innerHTML = `<p>${lines[index]}</p>`
+  //
+  // })
 
 })
