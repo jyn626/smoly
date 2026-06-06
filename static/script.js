@@ -3,6 +3,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const fileInput = document.getElementById('file_input')
   const results_container = document.getElementById("results")
   const audioEl = document.getElementById('audio')
+  const lyricsVisualizer = document.getElementById('lyrics-visualizer')
   const timestamps = []
   let lines = []
 
@@ -31,7 +32,7 @@ window.addEventListener('DOMContentLoaded', () => {
     return parseInt(minute) * 60 + parseFloat(seconds)
   }
 
-
+  async function handleUpload() {
     results_container.innerHTML = ""
     const loading = document.getElementById("loading")
 
@@ -143,12 +144,24 @@ window.addEventListener('DOMContentLoaded', () => {
   // audio events
   audioEl.addEventListener('timeupdate', () => {
     seconds  = audioEl.currentTime
+
     console.log(seconds)
-    timestamps.forEach((ts, index) => {
-      if (ts < seconds) {
-        console.log(lines[index])
+
+    let index = 0
+
+    for (let i = 0; i < timestamps.length; i++) {
+      if (seconds >= timestamps[i]) {
+        index = i
+      } else {
+        break
       }
-    })
+
+    }
+
+    console.log(lines[index])
+
+    lyricsVisualizer.innerHTML = `<p>${lines[index]}</p>`
+
   })
 
 })
