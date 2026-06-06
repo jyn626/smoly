@@ -5,7 +5,7 @@ from flask.json import jsonify
 from dotenv import load_dotenv
 from mutagen.easyid3 import EasyID3
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-from faster_whisper import WhispherModel
+from faster_whisper import WhisperModel
 import lyricsgenius
 import os
 import librosa
@@ -115,6 +115,15 @@ def transcribe(audio_file):
         song = genius.search_song(track, artist)
         lyrics = song.lyrics
 
+        # getting timestamps
+        segments, info = whisper_model.transcribe(audio_file, beam_size=5)
+
+        data['timestamps'] = []
+
+        for segment in segments:
+            data['timestamps'].append({ "start": segment.start, "end": segment.end })
+            print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
+
         if artist:
             search_query = f"{track} {artist}"
 
@@ -124,7 +133,7 @@ def transcribe(audio_file):
             search_query = filename_without_ext
 
     except Exception as e:
-        print(f"Metadata error: {e}")
+        print(f"Transcribing error: {e}")
         search_query = filename_without_ext
 
     print(search_query)

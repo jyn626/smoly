@@ -57,8 +57,10 @@ window.addEventListener('DOMContentLoaded', () => {
       const data = await response.json();
       const song_data = data.data
       let topTags = data.top_tags.tag
-      console.log(data)
+      timestamps.push(song_data.timestamps)
       lyrics = song_data.lyrics
+
+      console.log(song_data)
 
       if (song_data) {
         audio.style.display = 'block'
@@ -142,26 +144,25 @@ window.addEventListener('DOMContentLoaded', () => {
 
 
   // audio events
-  // audioEl.addEventListener('timeupdate', () => {
-  //   seconds  = audioEl.currentTime
-  //
-  //   console.log(seconds)
-  //
-  //   let index = 0
-  //
-  //   for (let i = 0; i < timestamps.length; i++) {
-  //     if (seconds >= timestamps[i]) {
-  //       index = i
-  //     } else {
-  //       break
-  //     }
-  //
-  //   }
-  //
-  //   console.log(lines[index])
-  //
-  //   lyricsVisualizer.innerHTML = `<p>${lines[index]}</p>`
-  //
-  // })
+  audioEl.addEventListener('timeupdate', () => {
+    seconds  = audioEl.currentTime
+
+    console.log(seconds)
+
+    let index = 0
+
+    for (let i = 0; i < timestamps.length; i++) {
+      if (seconds >= timestamps[i].end) {
+        index = i
+      } else {
+        break
+      }
+
+    }
+
+    console.log(lines[index])
+    lyricsVisualizer.innerHTML = `<p>${lines[index]}</p>`
+
+  })
 
 })
