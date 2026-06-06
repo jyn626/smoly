@@ -36,6 +36,7 @@ window.addEventListener('DOMContentLoaded', () => {
   async function handleUpload() {
     timestamps = []
     lines = []
+    lyricsVisualizer.innerHTML = ""
     results_container.innerHTML = ""
     const loading = document.getElementById("loading")
 

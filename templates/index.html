@@ -36,10 +36,19 @@
       <small>Upload a song from your computer, and please wait and be patient for the results.</small>
       <input name="file" type="file" id="file_input">
 
-      <audio id="audio" controls style='display: none;'></audio>
+      <small>
+        <b class="note">Note:</b> Some lyrics are not synchronized properly with the song due to possible reasons:
+        <ul style="margin-left: 12px;">
+          <li>the uploaded song is a different version (e.g acoustic, live).</li>
+          <li>human error; the timestamps are set by-hand, and inaccuracy are sometimes inevitable.</li>
+        </ul>
+      </small>
+      <div style="padding: 6px; display: flex; flex-direction: row; align-items:center; justify-content: space-between">
+        <audio id="audio" controls style='display: none;'></audio>
+        <div id="lyrics-visualizer"></div>
+      </div>
 
 
-      <div id="lyrics-visualizer"></div>
       <div id="results">
       </div>
 
