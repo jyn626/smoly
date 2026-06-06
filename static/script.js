@@ -1,10 +1,11 @@
 window.addEventListener('DOMContentLoaded', () => {
 
+  const noticeDropdownBtn = document.getElementById('notice-dropdown-btn')
   const fileInput = document.getElementById('file_input')
   const results_container = document.getElementById("results")
   const audioEl = document.getElementById('audio')
   const lyricsVisualizer = document.getElementById('lyrics-visualizer')
-  const timestamps = []
+  let timestamps = []
   let lines = []
 
   const themeColors = {
@@ -33,6 +34,8 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   async function handleUpload() {
+    timestamps = []
+    lines = []
     results_container.innerHTML = ""
     const loading = document.getElementById("loading")
 
@@ -57,10 +60,8 @@ window.addEventListener('DOMContentLoaded', () => {
       const data = await response.json();
       const song_data = data.data
       let topTags = data.top_tags.tag
-      timestamps.push(song_data.timestamps)
+      console.log(data)
       lyrics = song_data.lyrics
-
-      console.log(song_data)
 
       if (song_data) {
         audio.style.display = 'block'
@@ -100,13 +101,13 @@ window.addEventListener('DOMContentLoaded', () => {
 
         song_data.lines && song_data.lines.forEach((line_data) => {
           const scores = line_data.theme_scores.map((theme) => theme.score)
-          const line = line_data.line
+          const line = line_data.line.split(' ').slice(1).join(' ')
 
           if (line == '') return;
 
-          // const timestamp = line_data.line.split(' ')[0]
-          // timestamps.push(formatTimestamp(timestamp))
-          // lines.push(line)
+          const timestamp = line_data.line.split(' ')[0]
+          timestamps.push(formatTimestamp(timestamp))
+          lines.push(line)
           const maxScore = Math.max(...scores)
           const bestThemeObj = line_data.theme_scores.filter((theme) => theme.score == maxScore)[0]
           const bestTheme = bestThemeObj.theme
@@ -124,7 +125,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 font-weight: lighter;
                 color: #333;
                 "
-                ></span><mark style="background-color: ${bgColor};">${line} <sup style="font-size: 0.7em; opacity: 0.7;">${bestTheme} ${bestScore}%</sup></mark><br>`
+                >${timestamp}</span><mark style="background-color: ${bgColor};">${line} <sup style="font-size: 0.7em; opacity: 0.7;">${bestTheme} ${bestScore}%</sup></mark><br>`
         })
 
         console.log(timestamps)
@@ -140,6 +141,11 @@ window.addEventListener('DOMContentLoaded', () => {
 
   }
 
+  noticeDropdownBtn.addEventListener('click', () => {
+    document.getElementById('notice').classList.toggle('active')
+  })
+
+
   fileInput.addEventListener('change', handleUpload)
 
 
@@ -148,11 +154,11 @@ window.addEventListener('DOMContentLoaded', () => {
     seconds  = audioEl.currentTime
 
     console.log(seconds)
-
+    let offset = -0.35
     let index = 0
 
     for (let i = 0; i < timestamps.length; i++) {
-      if (seconds >= timestamps[i].end) {
+      if (seconds >= timestamps[i] + offset) {
         index = i
       } else {
         break
@@ -161,7 +167,9 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     console.log(lines[index])
+
     lyricsVisualizer.innerHTML = `<p>${lines[index]}</p>`
+
 
   })
 

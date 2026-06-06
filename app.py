@@ -5,8 +5,6 @@ from flask.json import jsonify
 from dotenv import load_dotenv
 from mutagen.easyid3 import EasyID3
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-from faster_whisper import WhisperModel
-import lyricsgenius
 import os
 import librosa
 import numpy as np
@@ -15,11 +13,8 @@ import json
 import uuid
 import requests
 import textstat
-import re
 
 load_dotenv()
-
-# lyricsgenius.enable_logging()
 
 LASTFM_API_KEY = os.environ.get("LASTFM_API_KEY")
 
@@ -33,11 +28,6 @@ model = SentenceTransformer(
 )
 lastfm_base = "http://ws.audioscrobbler.com/2.0/"
 analyzer = SentimentIntensityAnalyzer()
-genius = lyricsgenius.Genius()
-# soup = BeautifulSoup(res.content, 'html.parser')
-
-model_size = "base"
-whisper_model = WhisperModel(model_size, device="cpu", compute_type="int8")
 
 data = {}
 
@@ -93,36 +83,15 @@ def transcribe(audio_file):
     print("transcribing...")
     filename_without_ext = audio_file.rsplit('.', 1)[0].split('/')[-1]
     toptags = None
-    lyrics = ""
 
     try:
         audio = EasyID3(audio_file)
         artist = audio.get('artist', [''])[0]
         track = audio.get('title', [''])[0] or filename_without_ext
 
-        # scape https://www.lyrics.com/lyrics/
-        # url = f"https://www.azlyrics.com/search/?q={track}"
-        # html = requests.get(url)
-        # soup = BeautifulSoup(html.content, 'html.parser')
-        # print(soup.prettify())
-        # end scrape
-
-
         track = " ".join(word.capitalize() for word in track.split(" "))
         print(track)
         print(artist)
-
-        song = genius.search_song(track, artist)
-        lyrics = song.lyrics
-
-        # getting timestamps
-        segments, info = whisper_model.transcribe(audio_file, beam_size=5)
-
-        data['timestamps'] = []
-
-        for segment in segments:
-            data['timestamps'].append({ "start": segment.start, "end": segment.end })
-            print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
 
         if artist:
             search_query = f"{track} {artist}"
@@ -133,15 +102,14 @@ def transcribe(audio_file):
             search_query = filename_without_ext
 
     except Exception as e:
-        print(f"Transcribing error: {e}")
+        print(f"Metadata error: {e}")
         search_query = filename_without_ext
 
     print(search_query)
-    # lyrics = syncedlyrics.search(search_query)
+    lyrics = syncedlyrics.search(search_query)
     sentiment = analyzer.polarity_scores(lyrics)
     compound = sentiment["compound"]
     mood = ""
-
     if compound >= 0.5:
         mood = "Very Positive"
     elif compound >= 0.2:
@@ -157,13 +125,9 @@ def transcribe(audio_file):
     if not lyrics:
         return []
 
+    lines = [line for line in lyrics.strip().split('\n') if line]
 
-    # remove the [Verse], [Chorus] tags using a global regex
-    clean_text = re.sub(r"\[[^\]]*\]", "", lyrics)
-
-    # split by newline, filter out empty lines, and trim spacing
-    lyric_lines = [line.strip() for line in clean_text.split("\n") if line.strip()]
-    return lyrics, lyric_lines, top_tags["toptags"], mood
+    return lyrics, lines, top_tags["toptags"], mood
 
 
 def beat_detection(audio_file):
