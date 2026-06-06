@@ -17,14 +17,16 @@
     <div class="container">
       <small>Upload a song from your computer, and please wait and be patient for the results.</small>
       <input name="file" type="file" id="file_input">
-      <div id="results">
-        </div>
 
-        <div id="loading" style="display: none; margin-top: 20px;">
-          <div class="spinner"></div>
-          <p>Loading...</p>
-        </div>
-        <div style="margin-top: 22px; margin-bottom: 22px;"></div>
+      <audio id="audio" controls style='display: none;'></audio>
+      <div id="results">
+      </div>
+
+      <div id="loading" style="display: none; margin-top: 20px;">
+        <div class="spinner"></div>
+        <p>Loading...</p>
+      </div>
+      <div style="margin-top: 22px; margin-bottom: 22px;"></div>
     </div>
 
   </main>
