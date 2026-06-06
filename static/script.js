@@ -148,7 +148,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   fileInput.addEventListener('change', handleUpload)
 
-
+  let currentIndex = -1
   // audio events
   audioEl.addEventListener('timeupdate', () => {
     seconds  = audioEl.currentTime
@@ -166,9 +166,14 @@ window.addEventListener('DOMContentLoaded', () => {
 
     }
 
-    console.log(lines[index])
+    console.log(lines[currentIndex])
+    if (currentIndex !== index) {
+      currentIndex = index
+      if (lines[currentIndex]) {
+        lyricsVisualizer.innerHTML = `<p class="lyrics">${lines[currentIndex]}</p>`
+      }
+    }
 
-    lyricsVisualizer.innerHTML = `<p>${lines[index]}</p>`
 
 
   })

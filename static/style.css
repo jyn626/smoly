@@ -148,6 +148,22 @@ button:hover {
  max-height: 500px;
 }
 
+
+.lyrics {
+  animation: up-lyrics .4s ease-in-out;
+}
+
+@keyframes up-lyrics {
+  0% {
+    transform: translateY(-100px);
+    opacity: 0;                
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
 @keyframes spin {
   0% {
     transform: rotate(0deg);
