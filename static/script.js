@@ -8,6 +8,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const lyricsVisualizer = document.getElementById('lyrics-visualizer')
   let timestamps = []
   let lines = []
+  lines.push('...')
 
   const themeColors = {
     "nostalgia": "#FFE8CC",
@@ -125,7 +126,7 @@ window.addEventListener('DOMContentLoaded', () => {
           maxSyllables = Math.max(...syllables)
 
           lyricsContainer.innerHTML += `
-          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+          <div style="display: flex; align-items: center; gap: 10px">
             <span
               style="
                 background-color: ${bgColor};
@@ -158,8 +159,14 @@ window.addEventListener('DOMContentLoaded', () => {
                max="${maxSyllables}"
                style="width: 80px; flex-shrink: 0;"
              ></progress>
+             <sup
+               style="
+                 font-size: 0.7em;
+                 opacity: 0.7;"
+               >
+                 ${line_data.total_syllables} syllables
+               </sup>
           </div>
-          <br>
             `
         })
         // syllables.forEach((value) => {
@@ -192,29 +199,25 @@ window.addEventListener('DOMContentLoaded', () => {
   fileInput.addEventListener('change', handleUpload)
 
   let currentIndex = -1
-  // audio events
   audioEl.addEventListener('timeupdate', () => {
-    seconds  = audioEl.currentTime
-
-    console.log(seconds)
-    let offset = -0.35
-    let index = 0
+    const seconds  = audioEl.currentTime
+    let index = -1
 
     for (let i = 0; i < timestamps.length; i++) {
-      if (seconds >= timestamps[i] + offset) {
+      console.log(seconds, timestamps[i])
+      if (seconds >= timestamps[i]) {
         index = i
-      } else {
-        break
       }
-
     }
 
-    console.log(lines[currentIndex])
     if (currentIndex !== index) {
+      console.log(lines[currentIndex])
       currentIndex = index
       if (lines[currentIndex]) {
-        lyricsVisualizer.innerHTML = `<p class="lyrics">${lines[currentIndex]}</p>`
-      }
+       lyricsVisualizer.innerHTML = `<p class="lyrics">${lines[currentIndex]}</p>`
+       } else {
+         lyricsVisualizer.innerHTML = ''
+       }
     }
 
 
