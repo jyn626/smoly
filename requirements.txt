@@ -1,0 +1,10 @@
+Flask
+sentence-transformers
+python-dotenv
+mutagen
+vaderSentiment
+librosa
+numpy
+syncedlyrics
+requests
+textstat
