@@ -4,6 +4,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const fileInput = document.getElementById('file_input')
   const results_container = document.getElementById("results")
   const audioEl = document.getElementById('audio')
+
   const lyricsVisualizer = document.getElementById('lyrics-visualizer')
   let timestamps = []
   let lines = []
@@ -37,7 +38,7 @@ window.addEventListener('DOMContentLoaded', () => {
     timestamps = []
     lines = []
     lyricsVisualizer.innerHTML = ""
-    results_container.innerHTML = ""
+    // results_container.innerHTML = ""
     const loading = document.getElementById("loading")
 
     loading.style.display = 'block'
@@ -49,7 +50,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     const audioUrl = URL.createObjectURL(file)
     audioEl.src = audioUrl
-    audio.load()
+    audioEl.load()
 
 
     try {
@@ -100,12 +101,18 @@ window.addEventListener('DOMContentLoaded', () => {
           </div>
         </div>`
 
+        const syllables = []
+        let maxSyllables = 0
+
+        const lyricsContainer = document.getElementById('lyrics-container')
+        const syllablesContainer = document.getElementById('syllables-container')
+
         song_data.lines && song_data.lines.forEach((line_data) => {
           const scores = line_data.theme_scores.map((theme) => theme.score)
           const line = line_data.line.split(' ').slice(1).join(' ')
 
           if (line == '') return;
-
+          syllables.push(line_data.total_syllables)
           const timestamp = line_data.line.split(' ')[0]
           timestamps.push(formatTimestamp(timestamp))
           lines.push(line)
@@ -114,7 +121,11 @@ window.addEventListener('DOMContentLoaded', () => {
           const bestTheme = bestThemeObj.theme
           const bestScore = (bestThemeObj.score * 100).toFixed(0)
           const bgColor = themeColors[bestTheme] || "#FFFFFF"
-          results_container.innerHTML += `
+
+          maxSyllables = Math.max(...syllables)
+
+          lyricsContainer.innerHTML += `
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
             <span
               style="
                 background-color: ${bgColor};
@@ -126,15 +137,46 @@ window.addEventListener('DOMContentLoaded', () => {
                 font-weight: lighter;
                 color: #333;
                 "
-                >${timestamp}</span><mark style="background-color: ${bgColor};">${line} <sup style="font-size: 0.7em; opacity: 0.7;">${bestTheme} ${bestScore}%</sup></mark><br>`
+                >${timestamp}
+            </span>
+            <mark
+              style="
+                background-color: ${bgColor};
+                "
+            >${line}
+            <sup
+              style="
+                font-size: 0.7em;
+                opacity: 0.7;"
+              >
+                ${bestTheme} ${bestScore}%
+              </sup>
+            </mark>
+
+            <progress
+               value="${line_data.total_syllables}"
+               max="${maxSyllables}"
+               style="width: 80px; flex-shrink: 0;"
+             ></progress>
+          </div>
+          <br>
+            `
         })
+        // syllables.forEach((value) => {
+        //   syllablesContainer.innerHTML += `
+        //   <div style="display: flex; flex-direction: column;">
+        //     <progress value=${value} max="${maxSyllables}"></progress>
+        //     <br>
+        //   </div>
+        //   `
+        // })
 
         console.log(timestamps)
         console.log(lines)
       }
 
     } catch (error) {
-      results_container.innerHTML = ""
+      // results_container.innerHTML = ""
       console.log(error)
     } finally {
       loading.style.display = 'none'
