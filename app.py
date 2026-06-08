@@ -5,6 +5,7 @@ from flask.json import jsonify
 from dotenv import load_dotenv
 from mutagen.easyid3 import EasyID3
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+from google import genai
 import os
 import librosa
 import numpy as np
@@ -17,6 +18,7 @@ import textstat
 load_dotenv()
 
 LASTFM_API_KEY = os.environ.get("LASTFM_API_KEY")
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'uploads'
@@ -26,6 +28,59 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 model = SentenceTransformer(
     "all-MiniLM-L6-v2"
 )
+
+client = genai.Client(api_key=GEMINI_API_KEY)
+# chat = client.chats.create(model="gemini-3.5-flash")
+
+def ai_analyze(lyrics):
+    prompt = f"""
+        You are an expert music and lyric analyst.
+
+        Analyze the following song lyrics.
+
+        Instructions:
+        1. Ignore timestamps such as [00:16.19].
+        2. Group lyrics into logical verses, choruses, bridges, and outro sections.
+        3. Explain the meaning of each section in 1-3 concise sentences.
+        4. Focus on emotions, imagery, symbolism, themes, and the story being told.
+        5. Do not explain every line individually unless necessary.
+        6. Keep explanations easy to understand.
+        7. Return ONLY valid JSON. Do not include markdown or code fences.
+
+        Return this exact structure:
+
+        {{
+          "title": "",
+          "overall_summary": "",
+          "themes": [],
+          "mood": "",
+          "sections": [
+            {{
+              "section_name": "",
+              "lyrics": "",
+              "explanation": "",
+              "emotion": ""
+            }}
+          ]
+        }}
+
+        Lyrics:
+
+        {lyrics}
+    """
+
+
+    response = client.models.generate_content(
+        model="gemini-3.5-flash",
+        contents=prompt
+    )
+
+    print(response.text)
+
+    return response.text
+
+
+
 lastfm_base = "http://ws.audioscrobbler.com/2.0/"
 analyzer = SentimentIntensityAnalyzer()
 
@@ -107,6 +162,7 @@ def transcribe(audio_file):
 
     print(search_query)
     lyrics = syncedlyrics.search(search_query)
+    print(lyrics)
     sentiment = analyzer.polarity_scores(lyrics)
     compound = sentiment["compound"]
     mood = ""
@@ -189,10 +245,9 @@ def rate_line_theme(line, embedding):
 
     for theme, desc in themes.items():
         similarities = util.cos_sim(embedding, model.encode(desc))
-
         _line["theme_scores"].append({
             "theme": theme,
-            "score": similarities.item()
+            "score": similarities.item(),
         })
 
     data['lines'].append(_line)
@@ -255,6 +310,8 @@ def analyze():
         output_fname = uuid.uuid4()
         with open(f'./outputs/{output_fname}.json', "w") as f:
             json.dump(data, f, indent=2)
+
+        data["ai_analysis"] = json.loads(ai_analyze(lyrics))
 
     except Exception as e:
         print(f"POST /analyze ERROR: {e}")

@@ -99,7 +99,7 @@ button {
 }
 
 button:hover {
-  background-color: ;
+  background-color: rgba(0, 0, 0, 0.04);
 }
 
 .container {
@@ -129,6 +129,25 @@ button:hover {
   border-radius: 4px;
 }
 
+.section-item {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 6px;
+  padding: 10px;
+  background: #fafafa;
+  transition: background 0.2s ease;
+  cursor: help;
+}
+
+.section-item:hover {
+  background: #f4f7ff;
+}
+
+.section-item p {
+  margin-top: 4px;
+  font-size: 0.95em;
+  color: #3b3b3b;
+}
+
 .notice {
   display: flex;
   /* padding: 12px; */
@@ -141,7 +160,7 @@ button:hover {
 }
 
 .notice.active {
- max-height: 500px;
+  max-height: 500px;
 }
 
 
@@ -158,6 +177,7 @@ button:hover {
     transform: translateY(100px);
     opacity: 0;
   }
+
   100% {
     transform: translateY(0);
     opacity: 1;

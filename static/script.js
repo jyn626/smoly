@@ -35,6 +35,17 @@ window.addEventListener('DOMContentLoaded', () => {
     return parseInt(minute) * 60 + parseFloat(seconds)
   }
 
+  function escapeHtml(str) {
+    return String(str || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+      .replace(/\n/g, ' ')
+      .replace(/\r/g, ' ')
+  }
+
   async function handleUpload() {
     timestamps = []
     lines = []
@@ -62,12 +73,15 @@ window.addEventListener('DOMContentLoaded', () => {
 
       const data = await response.json();
       const song_data = data.data
+      const sectionDefinitions = song_data.ai_analysis?.sections || []
       let topTags = data.top_tags.tag
       console.log(data)
       lyrics = song_data.lyrics
 
+      console.log(lyrics)
+
       if (song_data) {
-        audio.style.display = 'block'
+        audioEl.style.display = 'block'
         if (!song_data.lines || song_data.lines.length === 0) {
           results_container.innerHTML += '<p style="color: red;">Lyrics cannot be found. Please try again.</p>'
           return
@@ -87,18 +101,17 @@ window.addEventListener('DOMContentLoaded', () => {
             <h4 style="margin-top: 0; margin-bottom: 8px;">Overall Theme Rating</h4>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.9em;">
               ${Object.entries(song_data.overall_theme_score).map(([theme, score]) =>
-              `<div><strong>${theme}:</strong> ${(score * 100).toFixed(2)}%</div>`
-              ).join('')}
+          `<div><strong>${theme}:</strong> ${(score * 100).toFixed(2)}%</div>`
+        ).join('')}
             </div>
           </div>
 
           <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #ddd;">
             <h4 style="margin-top: 0; margin-bottom: 8px;">Top tags</h4>
-            <div style="display: flex; flex-wrap: wrap; flex-direction: row; gap:4px; ">${
-              topTags.length > 0 ?
-              topTags.map((tag) => `<p>${tag.name}</p>`)
-              : `<p>There are no <b>top tags</b> for this track.</p>`
-            }</div>
+            <div style="display: flex; flex-wrap: wrap; flex-direction: row; gap:4px; ">${topTags.length > 0 ?
+            topTags.map((tag) => `<p>${tag.name}</p>`)
+            : `<p>There are no <b>top tags</b> for this track.</p>`
+          }</div>
           </div>
         </div>`
 
@@ -108,12 +121,17 @@ window.addEventListener('DOMContentLoaded', () => {
         const lyricsContainer = document.getElementById('lyrics-container')
         const syllablesContainer = document.getElementById('syllables-container')
 
+
+
         song_data.lines && song_data.lines.forEach((line_data) => {
           const scores = line_data.theme_scores.map((theme) => theme.score)
           const line = line_data.line.split(' ').slice(1).join(' ')
+          const section = sectionDefinitions.find((section) => section.lyrics && section.lyrics.includes(line))
+          const sectionTitle = section?.explanation ? `title="${escapeHtml(section.explanation)}"` : ''
 
           if (line == '') return;
           syllables.push(line_data.total_syllables)
+
           const timestamp = line_data.line.split(' ')[0]
           timestamps.push(formatTimestamp(timestamp))
           lines.push(line)
@@ -126,7 +144,7 @@ window.addEventListener('DOMContentLoaded', () => {
           maxSyllables = Math.max(...syllables)
 
           lyricsContainer.innerHTML += `
-          <div style="display: flex; align-items: center; gap: 10px">
+          <div ${sectionTitle} style="display: flex; align-items: center; gap: 10px">
             <span
               style="
                 background-color: ${bgColor};
@@ -200,7 +218,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   let currentIndex = -1
   audioEl.addEventListener('timeupdate', () => {
-    const seconds  = audioEl.currentTime
+    const seconds = audioEl.currentTime
     let index = -1
 
     for (let i = 0; i < timestamps.length; i++) {
@@ -214,10 +232,10 @@ window.addEventListener('DOMContentLoaded', () => {
       console.log(lines[currentIndex])
       currentIndex = index
       if (lines[currentIndex]) {
-       lyricsVisualizer.innerHTML = `<p class="lyrics">${lines[currentIndex]}</p>`
-       } else {
-         lyricsVisualizer.innerHTML = ''
-       }
+        lyricsVisualizer.innerHTML = `<p class="lyrics">${lines[currentIndex]}</p>`
+      } else {
+        lyricsVisualizer.innerHTML = ''
+      }
     }
 
 
