@@ -121,6 +121,12 @@ window.addEventListener('DOMContentLoaded', () => {
         const lyricsContainer = document.getElementById('lyrics-container')
         const syllablesContainer = document.getElementById('syllables-container')
 
+        // get max syllables
+        song_data.lines && song_data.lines.forEach((line_data) => {
+          syllables.push(line_data.total_syllables)
+        })
+
+        maxSyllables = Math.max(...syllables)
 
 
         song_data.lines && song_data.lines.forEach((line_data) => {
@@ -130,7 +136,6 @@ window.addEventListener('DOMContentLoaded', () => {
           const sectionTitle = section?.explanation ? `title="${escapeHtml(section.explanation)}"` : ''
 
           if (line == '') return;
-          syllables.push(line_data.total_syllables)
 
           const timestamp = line_data.line.split(' ')[0]
           timestamps.push(formatTimestamp(timestamp))
@@ -140,8 +145,6 @@ window.addEventListener('DOMContentLoaded', () => {
           const bestTheme = bestThemeObj.theme
           const bestScore = (bestThemeObj.score * 100).toFixed(0)
           const bgColor = themeColors[bestTheme] || "#FFFFFF"
-
-          maxSyllables = Math.max(...syllables)
 
           lyricsContainer.innerHTML += `
           <div ${sectionTitle} style="display: flex; align-items: center; gap: 10px">
