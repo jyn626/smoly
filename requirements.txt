@@ -3,6 +3,7 @@ sentence-transformers
 python-dotenv
 mutagen
 vaderSentiment
+google-genai
 librosa
 numpy
 syncedlyrics

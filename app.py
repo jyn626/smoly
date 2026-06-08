@@ -240,7 +240,7 @@ def rate_line_theme(line, embedding):
     _line = {
         "line": line.strip(),
         "theme_scores": [],
-        "total_syllables": total_syllables
+        "total_syllables": total_syllables - 1 
     }
 
     for theme, desc in themes.items():
