@@ -78,6 +78,7 @@ window.addEventListener('DOMContentLoaded', () => {
       console.log(data)
       lyrics = song_data.lyrics
 
+      console.log(sectionDefinitions)
       console.log(lyrics)
 
       if (song_data) {
@@ -133,7 +134,8 @@ window.addEventListener('DOMContentLoaded', () => {
           const scores = line_data.theme_scores.map((theme) => theme.score)
           const line = line_data.line.split(' ').slice(1).join(' ')
           const section = sectionDefinitions.find((section) => section.lyrics && section.lyrics.includes(line))
-          const sectionTitle = section?.explanation ? `title="${escapeHtml(section.explanation)}"` : ''
+          const sectionExplanation = section?.explanation ? section.explanation : ''
+          const sectionName = section?.section_name ? section.section_name : ''
 
           if (line == '') return;
 
@@ -147,7 +149,11 @@ window.addEventListener('DOMContentLoaded', () => {
           const bgColor = themeColors[bestTheme] || "#FFFFFF"
 
           lyricsContainer.innerHTML += `
-          <div ${sectionTitle} style="display: flex; align-items: center; gap: 10px">
+          <div class="verse-row" style="display: flex; align-items: center; gap: 10px; position: relative;">
+            <div class="verse-explanation" style="display:none; position:absolute; top:110%; left:0; background:#fff; border:1px solid #ddd; padding:8px; border-radius:6px; width:320px; box-shadow:0 6px 18px rgba(0,0,0,0.08); z-index:10;">
+              <strong class='section-name'>${escapeHtml(sectionName)}</strong>
+              <p>${escapeHtml(sectionExplanation)}</p>
+            </div>
             <span
               style="
                 background-color: ${bgColor};
@@ -198,6 +204,20 @@ window.addEventListener('DOMContentLoaded', () => {
         //   </div>
         //   `
         // })
+
+        // toggle explanation when a verse row is clicked
+        lyricsContainer.addEventListener('click', (e) => {
+          const row = e.target.closest('.verse-row')
+          if (!row) return
+          const expl = row.querySelector('.verse-explanation')
+          if (!expl) return
+          const isVisible = expl.style.display && expl.style.display !== 'none'
+          // hide other open explanations
+          document.querySelectorAll('.verse-explanation').forEach((el) => {
+            if (el !== expl) el.style.display = 'none'
+          })
+          expl.style.display = isVisible ? 'none' : 'block'
+        })
 
         console.log(timestamps)
         console.log(lines)

@@ -32,6 +32,7 @@ model = SentenceTransformer(
 client = genai.Client(api_key=GEMINI_API_KEY)
 # chat = client.chats.create(model="gemini-3.5-flash")
 
+
 def ai_analyze(lyrics):
     prompt = f"""
         You are an expert music and lyric analyst.
@@ -69,16 +70,14 @@ def ai_analyze(lyrics):
         {lyrics}
     """
 
-
     response = client.models.generate_content(
-        model="gemini-3.5-flash",
+        model="gemini-3.1-flash-lite",
         contents=prompt
     )
 
     print(response.text)
 
     return response.text
-
 
 
 lastfm_base = "http://ws.audioscrobbler.com/2.0/"
@@ -232,6 +231,7 @@ def rate_overall_theme():
 
     data['overall_theme_score'] = overall_theme_score
 
+
 def rate_line_theme(line, embedding):
     """ Get theme and total syllables for each line """
 
@@ -262,8 +262,6 @@ def index():
 def analyze():
     data.clear()
     data['lines'] = []
-
-
 
     file = request.files.get("file")
 
@@ -296,16 +294,13 @@ def analyze():
         lyrics, lines, top_tags, mood = transcribe(audio_file)
         lines_embedding = model.encode(lines)
 
-
-
         for (line, embedding) in zip(lines, lines_embedding):
             rate_line_theme(line, embedding)
 
         data["lyrics"] = lyrics
-        data["mood"] =  mood
+        data["mood"] = mood
 
         rate_overall_theme()
-
 
         output_fname = uuid.uuid4()
         with open(f'./outputs/{output_fname}.json', "w") as f:
