@@ -1,19 +1,20 @@
-from flask import Flask, render_template, request, redirect
-from werkzeug.utils import secure_filename
-from sentence_transformers import SentenceTransformer, util
-from flask.json import jsonify
-from dotenv import load_dotenv
-from mutagen.easyid3 import EasyID3
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-from google import genai
+import json
 import os
+import uuid
+
 import librosa
 import numpy as np
-import syncedlyrics
-import json
-import uuid
 import requests
+import syncedlyrics
 import textstat
+from dotenv import load_dotenv
+from flask import Flask, redirect, render_template, request
+from flask.json import jsonify
+from google import genai
+from mutagen.easyid3 import EasyID3
+from sentence_transformers import SentenceTransformer, util
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+from werkzeug.utils import secure_filename
 
 load_dotenv()
 
@@ -21,16 +22,21 @@ LASTFM_API_KEY = os.environ.get("LASTFM_API_KEY")
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
 app = Flask(__name__)
-UPLOAD_FOLDER = 'uploads'
+UPLOAD_FOLDER = "uploads"
 
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-model = SentenceTransformer(
-    "all-MiniLM-L6-v2"
-)
+model = SentenceTransformer("all-MiniLM-L6-v2")
 
 client = genai.Client(api_key=GEMINI_API_KEY)
 # chat = client.chats.create(model="gemini-3.5-flash")
+
+lrclib_base = "https://lrclib.net/api"
+
+lastfm_base = "http://ws.audioscrobbler.com/2.0/"
+analyzer = SentimentIntensityAnalyzer()
+
+data = {}
 
 
 def ai_analyze(lyrics):
@@ -71,19 +77,13 @@ def ai_analyze(lyrics):
     """
 
     response = client.models.generate_content(
-        model="gemini-3.1-flash-lite",
-        contents=prompt
+        model="gemini-3.1-flash-lite", contents=prompt
     )
 
     print(response.text)
 
     return response.text
 
-
-lastfm_base = "http://ws.audioscrobbler.com/2.0/"
-analyzer = SentimentIntensityAnalyzer()
-
-data = {}
 
 # TODO: add more themes later, or configure this to uhh increase accuracy maybe
 themes = {
@@ -99,7 +99,7 @@ themes = {
     "loss": "grief and mourning",
     "freedom": "liberation and breaking free",
     "regret": "remorse and wishing things were different",
-    "despair": "hopelessness and deep darkness"
+    "despair": "hopelessness and deep darkness",
 }
 
 
@@ -110,10 +110,9 @@ def get_top_tags(artist, track):
         "artist": artist,
         "track": track,
         "api_key": LASTFM_API_KEY,
-        "format": "json"
+        "format": "json",
     }
     try:
-
         response = requests.get(lastfm_base, params=params, timeout=10)
         print(response)
         response.raise_for_status()
@@ -125,7 +124,7 @@ def get_top_tags(artist, track):
         print(data)
 
         output_fname = uuid.uuid4()
-        with open(f'./outputs/tags/{output_fname}.json', "w") as f:
+        with open(f"./outputs/tags/{output_fname}.json", "w") as f:
             json.dump(data, f, indent=2)
 
         return data
@@ -133,35 +132,41 @@ def get_top_tags(artist, track):
         print(f"HTTP error occurred: {err}")
 
 
+def fetch_lyrics(track_name, artist_name):
+    try:
+        res = requests.get(
+            f"{lrclib_base}/get?track_name={track_name}&artist_name=${artist_name}"
+        )
+        if res.status_code == 200:
+            data = res.json()
+            print(data["syncedLyrics"])
+
+            return data["syncedLyrics"]
+        return None
+    except Exception as e:
+        print(e)
+
+
 def transcribe(audio_file):
     print("transcribing...")
-    filename_without_ext = audio_file.rsplit('.', 1)[0].split('/')[-1]
-    toptags = None
-
+    filename_without_ext = audio_file.rsplit(".", 1)[0].split("/")[-1]
+    lyrics = None
     try:
         audio = EasyID3(audio_file)
-        artist = audio.get('artist', [''])[0]
-        track = audio.get('title', [''])[0] or filename_without_ext
+        artist = audio.get("artist", [""])[0]
+        track = audio.get("title", [""])[0] or filename_without_ext
 
         track = " ".join(word.capitalize() for word in track.split(" "))
-        print(track)
-        print(artist)
 
         if artist:
-            search_query = f"{track} {artist}"
-
+            lyrics = fetch_lyrics(track, artist)
+            print(lyrics)
             # TODO: get top tags outside this function
             top_tags = get_top_tags(artist, track)
-        else:
-            search_query = filename_without_ext
 
     except Exception as e:
         print(f"Metadata error: {e}")
-        search_query = filename_without_ext
 
-    print(search_query)
-    lyrics = syncedlyrics.search(search_query)
-    print(lyrics)
     sentiment = analyzer.polarity_scores(lyrics)
     compound = sentiment["compound"]
     mood = ""
@@ -180,7 +185,7 @@ def transcribe(audio_file):
     if not lyrics:
         return []
 
-    lines = [line for line in lyrics.strip().split('\n') if line]
+    lines = [line for line in lyrics.strip().split("\n") if line]
 
     return lyrics, lines, top_tags["toptags"], mood
 
@@ -202,20 +207,25 @@ def beat_detection(audio_file):
     rms_db = librosa.amplitude_to_db(rms)
     dynamic_range = np.max(rms_db) - np.min(rms_db)
 
-    if (bpm < 80): pace = "Slow"
-    elif (bpm > 80 and bpm < 120): pace = "Medium"
-    else: pace = "Fast"
+    if bpm < 80:
+        pace = "Slow"
+    elif bpm > 80 and bpm < 120:
+        pace = "Medium"
+    else:
+        pace = "Fast"
 
-    if (avg_rms < 0.05): energy = "Quiet"
-    elif (avg_rms > 0.05 and avg_rms < 0.15): energy = "Medium"
+    if avg_rms < 0.05:
+        energy = "Quiet"
+    elif avg_rms > 0.05 and avg_rms < 0.15:
+        energy = "Medium"
     else:
         energy = "Loud"
 
-    data['tempo'] = "%.2f BPM" % (bpm)
-    data['pace'] = pace
-    data['duration'] = "%.2fs" % (duration)
-    data['energy'] = energy
-    data['dynamic_range'] = "%.2f dB" % (dynamic_range)
+    data["tempo"] = "%.2f BPM" % (bpm)
+    data["pace"] = pace
+    data["duration"] = "%.2fs" % (duration)
+    data["energy"] = energy
+    data["dynamic_range"] = "%.2f dB" % (dynamic_range)
 
 
 def rate_overall_theme():
@@ -229,72 +239,65 @@ def rate_overall_theme():
         similarities = util.cos_sim(model.encode(desc), model.encode(data["lyrics"]))
         overall_theme_score[theme] += similarities.item()
 
-    data['overall_theme_score'] = overall_theme_score
+    data["overall_theme_score"] = overall_theme_score
 
 
 def rate_line_theme(line, embedding):
-    """ Get theme and total syllables for each line """
+    """Get theme and total syllables for each line"""
 
     total_syllables = textstat.syllable_count(line)
 
     _line = {
         "line": line.strip(),
         "theme_scores": [],
-        "total_syllables": total_syllables - 1 
+        "total_syllables": total_syllables - 1,
     }
 
     for theme, desc in themes.items():
         similarities = util.cos_sim(embedding, model.encode(desc))
-        _line["theme_scores"].append({
-            "theme": theme,
-            "score": similarities.item(),
-        })
+        _line["theme_scores"].append(
+            {
+                "theme": theme,
+                "score": similarities.item(),
+            }
+        )
 
-    data['lines'].append(_line)
+    data["lines"].append(_line)
 
 
 @app.route("/")
 def index():
-    return render_template('index.html')
+    return render_template("index.html")
 
 
 @app.route("/analyze", methods=["POST"])
 def analyze():
     data.clear()
-    data['lines'] = []
+    data["lines"] = []
 
     file = request.files.get("file")
 
     if not file:
-        return jsonify({
-            "success": False,
-            "message": "No file uploaded"
-        }), 400
+        return jsonify({"success": False, "message": "No file uploaded"}), 400
 
     if file.filename == "":
-        return jsonify({
-            "success": False,
-            "message": "No file selected"
-        }), 400
+        return jsonify({"success": False, "message": "No file selected"}), 400
 
     filename = secure_filename(file.filename)
 
-    path = os.path.join(
-        app.config["UPLOAD_FOLDER"],
-        filename
-    )
+    path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
 
     file.save(path)
 
     try:
-        print('==== processing ====')
+        print("==== processing ====")
         audio_file = path
         beat_detection(audio_file)
 
         lyrics, lines, top_tags, mood = transcribe(audio_file)
         lines_embedding = model.encode(lines)
 
-        for (line, embedding) in zip(lines, lines_embedding):
+        for line, embedding in zip(lines, lines_embedding):
             rate_line_theme(line, embedding)
 
         data["lyrics"] = lyrics
@@ -303,22 +306,15 @@ def analyze():
         rate_overall_theme()
 
         output_fname = uuid.uuid4()
-        with open(f'./outputs/{output_fname}.json', "w") as f:
+        with open(f"./outputs/{output_fname}.json", "w") as f:
             json.dump(data, f, indent=2)
 
         data["ai_analysis"] = json.loads(ai_analyze(lyrics))
 
     except Exception as e:
         print(f"POST /analyze ERROR: {e}")
-        return jsonify({
-            "success": False,
-            "error": str(e)
-        }), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
-    return jsonify({
-        "success": True,
-        "filename": filename,
-        "data": data,
-        "top_tags": top_tags
-
-    })
+    return jsonify(
+        {"success": True, "filename": filename, "data": data, "top_tags": top_tags}
+    )
