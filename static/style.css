@@ -204,6 +204,7 @@ button:hover {
 }
 
 #overall-summary-container {
+	display: none;
 	margin-top: 12px;
 	padding: 8px;
 	box-shadow:

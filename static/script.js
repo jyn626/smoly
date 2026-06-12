@@ -94,6 +94,7 @@ window.addEventListener("DOMContentLoaded", () => {
 						'<p style="color: red;">Lyrics cannot be found. Please try again.</p>';
 					return;
 				}
+				overallSummaryContainer.style.display = "block";
 				overallSummaryContainer.innerHTML += `<p>${overallSummary}</p>`;
 				songAnalysisContainer.innerHTML += `
 		<div class="song_analysis_container">
