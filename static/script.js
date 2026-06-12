@@ -3,6 +3,9 @@ window.addEventListener("DOMContentLoaded", () => {
 	const fileInput = document.getElementById("file_input");
 	const results_container = document.getElementById("results");
 	const audioEl = document.getElementById("audio");
+	const songAnalysisContainer = document.getElementById(
+		"song-analysis-container",
+	);
 
 	const lyricsVisualizer = document.getElementById("lyrics-visualizer");
 	let timestamps = [];
@@ -88,7 +91,7 @@ window.addEventListener("DOMContentLoaded", () => {
 					return;
 				}
 
-				results_container.innerHTML += `
+				songAnalysisContainer.innerHTML += `
 		<div class="song_analysis_container">
 		  <h3 class="title"style="margin-top: 0;">Song Analysis</h3>
 		  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.95em;">
