@@ -1,5 +1,6 @@
 outputs/*
 uploads/*
+cache/*
 __pycache__
 temp.json
 output.json
