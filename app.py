@@ -41,14 +41,20 @@ CACHE_DIR = "cache"
 os.makedirs(CACHE_DIR, exist_ok=True)
 
 data = {}
+artist, track = "", ""
 
 
 def get_file_hash(filepath):
     sha = hashlib.sha256()
 
     with open(filepath, "rb") as f:
-        while chunk := f.read(8192):
-            sha.update(chunk)
+        while True:
+            chunk = f.read(8192)
+
+            if chunk:
+                sha.update(chunk)
+            else:
+                break
 
     return sha.hexdigest()
 
@@ -134,6 +140,26 @@ themes = {
 }
 
 
+def fetch_lyrics_from_lrclib(track_name, artist_name):
+    try:
+        res = requests.get(
+            f"{lrclib_base}/get?track_name={track_name}&artist_name=${artist_name}"
+        )
+        if res.status_code == 200:
+            data = res.json()
+            print(data["syncedLyrics"])
+
+            return data["syncedLyrics"]
+        return None
+    except Exception as e:
+        print(e)
+
+
+def get_lines(lyrics):
+    lines = [line for line in lyrics.strip().split("\n") if line]
+    return lines
+
+
 def get_top_tags(artist, track):
     # get tags using last.fm api :)
     params = {
@@ -163,40 +189,36 @@ def get_top_tags(artist, track):
         print(f"HTTP error occurred: {err}")
 
 
-def fetch_lyrics(track_name, artist_name):
+def extract_metadata(audio_file):
+    global artist, track
     try:
-        res = requests.get(
-            f"{lrclib_base}/get?track_name={track_name}&artist_name=${artist_name}"
-        )
-        if res.status_code == 200:
-            data = res.json()
-            print(data["syncedLyrics"])
+        audio = EasyID3(audio_file)
 
-            return data["syncedLyrics"]
-        return None
+        if audio is not None:
+            artist = audio.get("artist", [""])[0]
+            track = audio.get("title", [""])[0] or filename_without_ext
+
+        if not artist or not track:
+            # TODO: implement a fallback function
+            return None
+
+        # capitalize title
+        track = " ".join(word.capitalize() for word in track.split(" "))
+        return artist, track
     except Exception as e:
-        print(e)
+        print(f"Error extracting metadata: {e}")
 
 
-def transcribe(audio_file):
+def get_lyrics(audio_file):
     print("transcribing...")
     filename_without_ext = audio_file.rsplit(".", 1)[0].split("/")[-1]
     lyrics = None
-    try:
-        audio = EasyID3(audio_file)
-        artist = audio.get("artist", [""])[0]
-        track = audio.get("title", [""])[0] or filename_without_ext
 
-        track = " ".join(word.capitalize() for word in track.split(" "))
+    artist, track = extract_metadata(audio_file)
 
-        if artist:
-            lyrics = fetch_lyrics(track, artist)
-            print(lyrics)
-            # TODO: get top tags outside this function
-            top_tags = get_top_tags(artist, track)
-
-    except Exception as e:
-        print(f"Metadata error: {e}")
+    if artist and track:
+        lyrics = fetch_lyrics_from_lrclib(track, artist)
+        print(lyrics)
 
     sentiment = analyzer.polarity_scores(lyrics)
     compound = sentiment["compound"]
@@ -216,12 +238,11 @@ def transcribe(audio_file):
     if not lyrics:
         return []
 
-    lines = [line for line in lyrics.strip().split("\n") if line]
+    return lyrics
+    # return lyrics, lines, top_tags["toptags"], mood
 
-    return lyrics, lines, top_tags["toptags"], mood
 
-
-def beat_detection(audio_file):
+def detect_bpm(audio_file):
     print("detecting beats...")
     y, sr = librosa.load(audio_file)
 
@@ -321,6 +342,7 @@ def analyze():
     file.save(path)
 
     try:
+        print("==== checking cache ====")
         file_fingerprint = get_file_hash(path)
 
         cached_data = load_cache(file_fingerprint)
@@ -333,9 +355,12 @@ def analyze():
         print("==== processing ====")
 
         audio_file = path
-        beat_detection(audio_file)
+        detect_bpm(audio_file)
 
-        lyrics, lines, top_tags, mood = transcribe(audio_file)
+        # lyrics, lines, top_tags, mood = get_lyrics(audio_file)
+        lyrics = get_lyrics(audio_file)
+        lines = get_lines(lyrics)
+        top_tags = get_top_tags(artist, track)
         lines_embedding = model.encode(lines)
 
         for line, embedding in zip(lines, lines_embedding):
