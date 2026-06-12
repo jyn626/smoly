@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 import uuid
@@ -36,45 +37,75 @@ lrclib_base = "https://lrclib.net/api"
 lastfm_base = "http://ws.audioscrobbler.com/2.0/"
 analyzer = SentimentIntensityAnalyzer()
 
+CACHE_DIR = "cache"
+os.makedirs(CACHE_DIR, exist_ok=True)
+
 data = {}
+
+
+def get_file_hash(filepath):
+    sha = hashlib.sha256()
+
+    with open(filepath, "rb") as f:
+        while chunk := f.read(8192):
+            sha.update(chunk)
+
+    return sha.hexdigest()
+
+
+def load_cache(file_hash):
+    cache_path = os.path.join(CACHE_DIR, f"{file_hash}.json")
+
+    if not os.path.exists(cache_path):
+        return None
+
+    with open(cache_path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def save_cache(file_hash, data):
+    cache_path = os.path.join(CACHE_DIR, f"{file_hash}.json")
+
+    with open(cache_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
 
 
 def ai_analyze(lyrics):
     prompt = f"""
-        You are an expert music and lyric analyst.
+		You are an expert music and lyric analyst.
 
-        Analyze the following song lyrics.
+		Analyze the following song lyrics.
 
-        Instructions:
-        1. Ignore timestamps such as [00:16.19].
-        2. Group lyrics into logical verses, choruses, bridges, and outro sections.
-        3. Explain the meaning of each section in 1-3 concise sentences.
-        4. Focus on emotions, imagery, symbolism, themes, and the story being told.
-        5. Do not explain every line individually unless necessary.
-        6. Keep explanations easy to understand.
-        7. Return ONLY valid JSON. Do not include markdown or code fences.
+		Instructions:
+		1. Ignore timestamps such as [00:16.19].
+		2. Group lyrics into logical verses, choruses, bridges, and outro sections.
+		3. Explain the meaning of each section in 1-3 concise sentences.
+		4. Focus on emotions, imagery, symbolism, themes, and the story being told.
+		5. Do not explain every line individually unless necessary.
+		6. Keep explanations easy to understand.
+		7. Return ONLY valid JSON. Do not include markdown or code fences.
 
-        Return this exact structure:
+		Return this exact structure:
 
-        {{
-          "title": "",
-          "overall_summary": "",
-          "themes": [],
-          "mood": "",
-          "sections": [
-            {{
-              "section_name": "",
-              "lyrics": "",
-              "explanation": "",
-              "emotion": ""
-            }}
-          ]
-        }}
+		{{
+		  "title": "",
+		  "overall_summary": "",
+		  "themes": [],
+		  "mood": "",
+		  "sections": [
+			{{
+			  "section_name": "",
+			  "lyrics": "",
+			  "explanation": "",
+			  "emotion": ""
+			}}
+		  ]
+		}}
 
-        Lyrics:
+		Lyrics:
 
-        {lyrics}
-    """
+		{lyrics}
+	"""
 
     response = client.models.generate_content(
         model="gemini-3.1-flash-lite", contents=prompt
@@ -290,7 +321,17 @@ def analyze():
     file.save(path)
 
     try:
+        file_fingerprint = get_file_hash(path)
+
+        cached_data = load_cache(file_fingerprint)
+
+        if cached_data is not None:
+            print("CACHE HIT")
+
+            return jsonify({"success": True, "filename": filename, "data": cached_data})
+
         print("==== processing ====")
+
         audio_file = path
         beat_detection(audio_file)
 
@@ -310,6 +351,12 @@ def analyze():
             json.dump(data, f, indent=2)
 
         data["ai_analysis"] = json.loads(ai_analyze(lyrics))
+        data["top_tags"] = top_tags
+
+        save_cache(
+            file_fingerprint,
+            {"data": data},
+        )
 
     except Exception as e:
         print(f"POST /analyze ERROR: {e}")

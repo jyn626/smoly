@@ -74,7 +74,7 @@ window.addEventListener('DOMContentLoaded', () => {
       const data = await response.json();
       const song_data = data.data
       const sectionDefinitions = song_data.ai_analysis?.sections || []
-      let topTags = data.top_tags.tag
+      let topTags = song_data.top_tags.tag
       console.log(data)
       lyrics = song_data.lyrics
 
