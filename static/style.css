@@ -73,15 +73,16 @@ main {
 	box-shadow:
 		rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
 		rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+	border: 1px solid var(--fb-border-dark);
+	background-color: #fff;
 }
 
 .container {
-	background-color: #fff;
 	max-width: 800px;
 }
 
 .header {
-	background-color: var(--fb-blue-classic);
+	background: linear-gradient(to bottom, #3b5998, #607ba2);
 	color: white;
 	padding: 8px 12px 8px 12px;
 }
