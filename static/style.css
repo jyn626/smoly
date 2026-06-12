@@ -129,10 +129,14 @@ button:hover {
 }
 
 .song_analysis_container {
-	border: 2px solid var(--fb-border-dark);
+	border: 1px solid var(--fb-border-light);
+	box-shadow:
+		rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+		rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+
+	margin-top: 20px;
 	margin-bottom: 20px;
 	padding: 15px;
-	border-radius: 4px;
 }
 
 .section-item {
