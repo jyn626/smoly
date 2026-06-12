@@ -1,224 +1,240 @@
 *,
 *::after,
 *::before {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
 }
 
 :root {
-  /* Core Branding */
-  --fb-blue-classic: #3b5998;
-  /* The iconic header blue */
-  --fb-blue-dark: #29487d;
-  /* Header border / hover states */
-  --fb-blue-light: #eceff5;
-  /* Light blue highlight / active state */
-  --fb-blue-accent: #4c66a4;
-  /* Button/Link hover accent */
+	/* Core Branding */
+	--fb-blue-classic: #3b5998;
+	/* The iconic header blue */
+	--fb-blue-dark: #29487d;
+	/* Header border / hover states */
+	--fb-blue-light: #eceff5;
+	/* Light blue highlight / active state */
+	--fb-blue-accent: #4c66a4;
+	/* Button/Link hover accent */
 
-  /* Backgrounds & Canvas */
-  --fb-bg-main: #e9ebee;
-  /* The classic body background gray */
-  --fb-bg-card: #ffffff;
-  /* White boxes for feed posts and sidebars */
-  --fb-bg-input: #ffffff;
+	/* Backgrounds & Canvas */
+	--fb-bg-main: #e9ebee;
+	/* The classic body background gray */
+	--fb-bg-card: #ffffff;
+	/* White boxes for feed posts and sidebars */
+	--fb-bg-input: #ffffff;
 
-  /* Borders & Dividers */
-  --fb-border-light: #e5e5e5;
-  /* Subtitle/Internal post dividers */
-  --fb-border-medium: #d3d6db;
-  /* Main card borders and input borders */
-  --fb-border-dark: #b3b3b3;
-  /* Darker structural borders */
+	/* Borders & Dividers */
+	--fb-border-light: #e5e5e5;
+	/* Subtitle/Internal post dividers */
+	--fb-border-medium: #d3d6db;
+	/* Main card borders and input borders */
+	--fb-border-dark: #b3b3b3;
+	/* Darker structural borders */
 
-  /* Text Colors */
-  --fb-text-primary: #1c1e21;
-  /* Main body text, almost black */
-  --fb-text-secondary: #4b4f56;
-  /* Secondary text, timestamps, and captions */
-  --fb-text-link: #365899;
-  /* Classic blue link color */
+	/* Text Colors */
+	--fb-text-primary: #1c1e21;
+	/* Main body text, almost black */
+	--fb-text-secondary: #4b4f56;
+	/* Secondary text, timestamps, and captions */
+	--fb-text-link: #365899;
+	/* Classic blue link color */
 
-  /* UI Feedback & Interactive States */
-  --fb-button-gray-bg: #f4f6f7;
-  /* Standard gray button background */
-  --fb-button-gray-border: #ccd0d5;
-  /* Standard gray button border */
-  --fb-notification-red: #fa3e3e;
-  /* The high-anxiety red notification badge */
-  --fb-online-green: #42b72a;
-  /* Chat sidebar "Active Now" green dot */
-  --fb-verified-blue: #5890ff;
-  /* Early verified badge color */
+	/* UI Feedback & Interactive States */
+	--fb-button-gray-bg: #f4f6f7;
+	/* Standard gray button background */
+	--fb-button-gray-border: #ccd0d5;
+	/* Standard gray button border */
+	--fb-notification-red: #fa3e3e;
+	/* The high-anxiety red notification badge */
+	--fb-online-green: #42b72a;
+	/* Chat sidebar "Active Now" green dot */
+	--fb-verified-blue: #5890ff;
+	/* Early verified badge color */
 }
 
-
 body {
-  background-color: #f1f1f1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1.6;
-  font-family: Lucida Grande, Tahoma, Verdana, Arial, sans-serif;
-  font-size: 12px;
+	background-color: #f1f1f1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	line-height: 1.6;
+	font-family:
+		Lucida Grande,
+		Tahoma,
+		Verdana,
+		Arial,
+		sans-serif;
+	font-size: 12px;
 }
 
 main {
-  margin-top: 20px;
-  box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+	margin-top: 20px;
+	box-shadow:
+		rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+		rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
 }
 
 .container {
-  background-color: #fff;
-  max-width: 800px;
+	background-color: #fff;
+	max-width: 800px;
 }
 
 .header {
-  background-color: var(--fb-blue-classic);
-  color: white;
-  padding: 8px 12px 8px 12px;
+	background-color: var(--fb-blue-classic);
+	color: white;
+	padding: 8px 12px 8px 12px;
 }
 
 input {
-  width: 100%;
-  border: 1px solid lightblue;
-  padding: 6px;
-  margin-bottom: 8px;
+	width: 100%;
+	border: 1px solid lightblue;
+	padding: 6px;
+	margin-bottom: 8px;
 }
 
 button {
-  background-color: var(--fb-button-gray-bg);
-  border: none;
-  /* border: .5px solid var(--fb-button-gray-border); */
-  padding: 8px 12px 8px 12px;
-  font-weight: light;
-  cursor: pointer;
-  color: var(--fb-blue-dark);
-  box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+	background-color: var(--fb-button-gray-bg);
+	border: none;
+	/* border: .5px solid var(--fb-button-gray-border); */
+	padding: 8px 12px 8px 12px;
+	font-weight: light;
+	cursor: pointer;
+	color: var(--fb-blue-dark);
+	box-shadow:
+		rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+		rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
 }
 
 button:hover {
-  background-color: rgba(0, 0, 0, 0.04);
+	background-color: rgba(0, 0, 0, 0.04);
 }
 
 .container {
-  padding: 12px;
+	padding: 12px;
 }
 
 .spinner {
-  border: 4px solid var(--fb-blue-classic);
-  border-top: 4px solid var(--fb-blue-light);
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  animation: spin 1s linear infinite;
-  margin: 0 auto;
+	border: 4px solid var(--fb-blue-classic);
+	border-top: 4px solid var(--fb-blue-light);
+	border-radius: 50%;
+	width: 30px;
+	height: 30px;
+	animation: spin 1s linear infinite;
+	margin: 0 auto;
 }
 
-
-
 .title {
-  color: var(--fb-blue-classic)
+	color: var(--fb-blue-classic);
 }
 
 .song_analysis_container {
-  border: 2px solid var(--fb-border-dark);
-  margin-bottom: 20px;
-  padding: 15px;
-  border-radius: 4px;
+	border: 2px solid var(--fb-border-dark);
+	margin-bottom: 20px;
+	padding: 15px;
+	border-radius: 4px;
 }
 
 .section-item {
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 6px;
-  padding: 10px;
-  background: #fafafa;
-  transition: background 0.2s ease;
-  cursor: help;
+	border: 1px solid rgba(0, 0, 0, 0.08);
+	border-radius: 6px;
+	padding: 10px;
+	background: #fafafa;
+	transition: background 0.2s ease;
+	cursor: help;
 }
 
 .section-item:hover {
-  background: #f4f7ff;
+	background: #f4f7ff;
 }
 
 .section-item p {
-  margin-top: 4px;
-  font-size: 0.95em;
-  color: #3b3b3b;
+	margin-top: 4px;
+	font-size: 0.95em;
+	color: #3b3b3b;
 }
 
 .notice {
-  display: flex;
-  /* padding: 12px; */
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height .5s ease-in-out;
+	display: flex;
+	/* padding: 12px; */
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+	max-height: 0;
+	overflow: hidden;
+	transition: max-height 0.5s ease-in-out;
 }
 
 .notice.active {
-  max-height: 500px;
+	max-height: 500px;
 }
 
-
 .lyrics {
-  animation: up-lyrics 1s ease-in-out;
+	animation: up-lyrics 1s ease-in-out;
 }
 
 .note {
-  color: var(--fb-blue-classic)
+	color: var(--fb-blue-classic);
 }
 
 .section-name {
-  color: var(--fb-blue-classic);
-  font-weight: bold;
-  font-size: 14px;
+	color: var(--fb-blue-classic);
+	font-weight: bold;
+	font-size: 14px;
 }
 
 .verse-explanation {
-  display: none;
-  z-index: 10;
-  position: absolute;
-  width: 200px;
-  top: -10px;
-  right: -5px;
-  padding: 8px;
-  border-radius: 4px;
-  word-wrap: break-word;
-  box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
-  background-color: #fff;
+	display: none;
+	z-index: 10;
+	position: absolute;
+	width: 200px;
+	top: -10px;
+	right: -5px;
+	padding: 8px;
+	border-radius: 4px;
+	word-wrap: break-word;
+	box-shadow:
+		rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+		rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+	background-color: #fff;
+}
+
+#overall-summary-container {
+	margin-top: 12px;
+	padding: 8px;
+	box-shadow:
+		rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+		rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+	border: 1px solid var(--fb-blue-light);
 }
 
 @keyframes up-lyrics {
-  0% {
-    transform: translateY(100px);
-    opacity: 0;
-  }
+	0% {
+		transform: translateY(100px);
+		opacity: 0;
+	}
 
-  100% {
-    transform: translateY(0);
-    opacity: 1;
-  }
+	100% {
+		transform: translateY(0);
+		opacity: 1;
+	}
 }
 
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
+	0% {
+		transform: rotate(0deg);
+	}
 
-  100% {
-    transform: rotate(360deg);
-  }
+	100% {
+		transform: rotate(360deg);
+	}
 }
 
 #loading {
-  text-align: center;
-  color: var(--fb-text-primary);
+	text-align: center;
+	color: var(--fb-text-primary);
 }
 
 .verse-row {
-  cursor: pointer;
+	cursor: pointer;
 }

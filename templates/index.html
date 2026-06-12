@@ -1,70 +1,110 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+		<link rel="stylesheet" href="/static/style.css" />
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+		/>
+	</head>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-  <link rel="stylesheet" href="/static/style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
-</head>
+	<body>
+		<main>
+			<div class="header">
+				<h1>Smol Lyrics Analyzer</h1>
+			</div>
+			<div class="" style="background-color: white; padding: 8px">
+				<button
+					id="notice-dropdown-btn"
+					style="padding-left: 12px; cursor: pointer"
+				>
+					<i class="fa-solid fa-circle-info"></i>
+				</button>
 
-<body>
-  <main>
-    <div class="header">
-      <h1>Smol Lyrics Analyzer</h1>
-    </div>
-    <div class="" style="background-color: white; padding: 8px;">
+				<div class="notice" id="notice">
+					<p>
+						<b style="color: orange">Important: </b>Make sure to set
+						up your mp3 file's <b>meta data</b>, so the program can
+						process the file properly.
+					</p>
+					<p>
+						Please make sure to fill the
+						<b>`Contributing artists`</b> and the <b>`Title`.</b>
+					</p>
+					<img
+						src="/static/images/2.png"
+						alt=""
+						width="300"
+						style="
+							box-shadow:
+								rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+								rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+						"
+					/>
+				</div>
+			</div>
 
-      <button id="notice-dropdown-btn" style="padding-left: 12px; cursor: pointer">
-        <i class="fa-solid fa-circle-info"></i>
-      </button>
+			<div class="container">
+				<small
+					>Upload a song from your computer, and please wait and be
+					patient for the results.</small
+				>
+				<input name="file" type="file" id="file_input" />
 
-      <div class="notice" id="notice">
-        <p><b style="color: orange;">Important: </b>Make sure to set up your mp3 file's <b>meta data</b>, so the program
-          can process the file properly.</p>
-        <p>Please make sure to fill the <b>`Contributing artists`</b> and the <b>`Title`.</b></p>
-        <img src="/static/images/2.png" alt="" width="300"
-          style="box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;">
-      </div>
-    </div>
+				<small>
+					<b class="note">Note:</b> Some lyrics are not synchronized
+					properly with the song due to possible reasons:
+					<ul style="margin-left: 12px">
+						<li>
+							the uploaded song is a different version (e.g
+							acoustic, live).
+						</li>
+						<li>
+							human error; the timestamps are set by-hand, and
+							inaccuracy are sometimes inevitable.
+						</li>
+					</ul>
+				</small>
+				<div
+					style="
+						padding: 6px;
+						display: flex;
+						flex-direction: row;
+						align-items: center;
+						justify-content: space-between;
+					"
+				>
+					<audio id="audio" controls style="display: none"></audio>
+					<div id="lyrics-visualizer"></div>
+				</div>
 
-    <div class="container">
-      <small>Upload a song from your computer, and please wait and be patient for the results.</small>
-      <input name="file" type="file" id="file_input">
+				<div id="results">
+					<div
+						style="
+							display: flex;
+							flex-direction: column;
+							justify-content: space-between;
+						"
+					>
+						<div id="song-analysis-container"></div>
+						<div id="lyrics-container"></div>
+						<div class="" id="overall-summary-container">
+							<h3 class="title">Overall Summary</h3>
+						</div>
+					</div>
+				</div>
 
-      <small>
-        <b class="note">Note:</b> Some lyrics are not synchronized properly with the song due to possible reasons:
-        <ul style="margin-left: 12px;">
-          <li>the uploaded song is a different version (e.g acoustic, live).</li>
-          <li>human error; the timestamps are set by-hand, and inaccuracy are sometimes inevitable.</li>
-        </ul>
-      </small>
-      <div style="padding: 6px; display: flex; flex-direction: row; align-items:center; justify-content: space-between">
-        <audio id="audio" controls style='display: none;'></audio>
-        <div id="lyrics-visualizer"></div>
-      </div>
+				<div id="loading" style="display: none; margin-top: 20px">
+					<div class="spinner"></div>
+					<p>Loading...</p>
+				</div>
+				<div style="margin-top: 22px; margin-bottom: 22px"></div>
+			</div>
+		</main>
 
-
-      <div id="results">
-        <div style="display: flex; flex-direction: column; justify-content: space-between;">
-	        <div id="song-analysis-container""></div>
-	        <div id="lyrics-container"></div>
-	        <div id="syllables-container"></div>
-        </div>
-
-      </div>
-
-      <div id="loading" style="display: none; margin-top: 20px;">
-        <div class="spinner"></div>
-        <p>Loading...</p>
-      </div>
-      <div style="margin-top: 22px; margin-bottom: 22px;"></div>
-    </div>
-
-  </main>
-
-  <script src="/static/script.js"></script>
-</body>
-
+		<script src="/static/script.js"></script>
+	</body>
 </html>

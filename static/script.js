@@ -3,6 +3,9 @@ window.addEventListener("DOMContentLoaded", () => {
 	const fileInput = document.getElementById("file_input");
 	const results_container = document.getElementById("results");
 	const audioEl = document.getElementById("audio");
+	const overallSummaryContainer = document.getElementById(
+		"overall-summary-container",
+	);
 	const songAnalysisContainer = document.getElementById(
 		"song-analysis-container",
 	);
@@ -76,6 +79,7 @@ window.addEventListener("DOMContentLoaded", () => {
 			const song_data = data.data;
 			console.log(song_data);
 			const sectionDefinitions = song_data.ai_analysis?.sections || [];
+			const overallSummary = song_data.ai_analysis?.overall_summary || "";
 			let topTags = song_data.top_tags.toptags.tag;
 			console.log(data);
 			lyrics = song_data.lyrics;
@@ -90,7 +94,7 @@ window.addEventListener("DOMContentLoaded", () => {
 						'<p style="color: red;">Lyrics cannot be found. Please try again.</p>';
 					return;
 				}
-
+				overallSummaryContainer.innerHTML += `<p>${overallSummary}</p>`;
 				songAnalysisContainer.innerHTML += `
 		<div class="song_analysis_container">
 		  <h3 class="title"style="margin-top: 0;">Song Analysis</h3>
