@@ -6,10 +6,9 @@ import uuid
 import librosa
 import numpy as np
 import requests
-import syncedlyrics
 import textstat
 from dotenv import load_dotenv
-from flask import Flask, redirect, render_template, request
+from flask import Flask, render_template, request
 from flask.json import jsonify
 from google import genai
 from mutagen.easyid3 import EasyID3
