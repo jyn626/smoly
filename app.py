@@ -209,17 +209,7 @@ def extract_metadata(audio_file):
         print(f"Error extracting metadata: {e}")
 
 
-def get_lyrics(audio_file):
-    print("transcribing...")
-    filename_without_ext = audio_file.rsplit(".", 1)[0].split("/")[-1]
-    lyrics = None
-
-    artist, track = extract_metadata(audio_file)
-
-    if artist and track:
-        lyrics = fetch_lyrics_from_lrclib(track, artist)
-        print(lyrics)
-
+def get_mood(lyrics):
     sentiment = analyzer.polarity_scores(lyrics)
     compound = sentiment["compound"]
     mood = ""
@@ -234,6 +224,20 @@ def get_lyrics(audio_file):
     else:
         mood = "Very Emotional"
     print(mood)
+
+    return mood
+
+
+def get_lyrics(audio_file):
+    print("transcribing...")
+    filename_without_ext = audio_file.rsplit(".", 1)[0].split("/")[-1]
+    lyrics = None
+
+    artist, track = extract_metadata(audio_file)
+
+    if artist and track:
+        lyrics = fetch_lyrics_from_lrclib(track, artist)
+        print(lyrics)
 
     if not lyrics:
         return []
@@ -349,8 +353,10 @@ def analyze():
 
         if cached_data is not None:
             print("CACHE HIT")
-
-            return jsonify({"success": True, "filename": filename, "data": cached_data})
+            print(cached_data)
+            return jsonify(
+                {"success": True, "filename": filename, "data": cached_data["data"]}
+            )
 
         print("==== processing ====")
 
@@ -361,6 +367,7 @@ def analyze():
         lyrics = get_lyrics(audio_file)
         lines = get_lines(lyrics)
         top_tags = get_top_tags(artist, track)
+        mood = get_mood(lyrics)
         lines_embedding = model.encode(lines)
 
         for line, embedding in zip(lines, lines_embedding):
@@ -387,6 +394,4 @@ def analyze():
         print(f"POST /analyze ERROR: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
-    return jsonify(
-        {"success": True, "filename": filename, "data": data, "top_tags": top_tags}
-    )
+    return jsonify({"success": True, "filename": filename, "data": data})
