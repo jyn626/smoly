@@ -382,7 +382,7 @@ def analyze():
         data["mood"] = mood
         data["overall_theme_score"] = overall_theme_score
 
-	  	data["ai_analysis"] = json.loads(ai_analyze(lyrics))
+        data["ai_analysis"] = json.loads(ai_analyze(lyrics))
         data["top_tags"] = top_tags
 
         output_fname = uuid.uuid4()
