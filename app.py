@@ -283,8 +283,8 @@ def detect_bpm(audio_file):
     data["dynamic_range"] = "%.2f dB" % (dynamic_range)
 
 
-def rate_overall_theme():
-    if not data["lyrics"]:
+def rate_overall_theme(lyrics, themes):
+    if not lyrics:
         return
 
     overall_theme_score = {theme: 0 for theme in themes}
@@ -294,13 +294,17 @@ def rate_overall_theme():
         similarities = util.cos_sim(model.encode(desc), model.encode(data["lyrics"]))
         overall_theme_score[theme] += similarities.item()
 
-    data["overall_theme_score"] = overall_theme_score
+    return overall_theme_score
+
+
+def get_line_sylabbles_count(line):
+    return textstat.syllable_count(line)
 
 
 def rate_line_theme(line, embedding):
-    """Get theme and total syllables for each line"""
+    """Get theme and total syllables for a single line"""
 
-    total_syllables = textstat.syllable_count(line)
+    total_syllables = get_line_sylabbles_count(line)
 
     _line = {
         "line": line.strip(),
@@ -317,7 +321,7 @@ def rate_line_theme(line, embedding):
             }
         )
 
-    data["lines"].append(_line)
+    return _line
 
 
 @app.route("/")
@@ -367,22 +371,24 @@ def analyze():
         lines = get_lines(lyrics)
         top_tags = get_top_tags(artist, track)
         mood = get_mood(lyrics)
+        overall_theme_score = rate_overall_theme(lyrics, themes)
         lines_embedding = model.encode(lines)
 
         for line, embedding in zip(lines, lines_embedding):
-            rate_line_theme(line, embedding)
+            _line = rate_line_theme(line, embedding)
+            data["lines"].append(_line)
 
         data["lyrics"] = lyrics
         data["mood"] = mood
+        data["overall_theme_score"] = overall_theme_score
 
-        rate_overall_theme()
+	  	data["ai_analysis"] = json.loads(ai_analyze(lyrics))
+        data["top_tags"] = top_tags
 
         output_fname = uuid.uuid4()
+
         with open(f"./outputs/{output_fname}.json", "w") as f:
             json.dump(data, f, indent=2)
-
-        data["ai_analysis"] = json.loads(ai_analyze(lyrics))
-        data["top_tags"] = top_tags
 
         save_cache(
             file_fingerprint,
