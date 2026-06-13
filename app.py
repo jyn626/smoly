@@ -40,7 +40,6 @@ CACHE_DIR = "cache"
 os.makedirs(CACHE_DIR, exist_ok=True)
 
 data = {}
-artist, track = "", ""
 
 
 def get_file_hash(filepath):
@@ -75,7 +74,10 @@ def save_cache(file_hash, data):
         json.dump(data, f, indent=4, ensure_ascii=False)
 
 
-def ai_analyze(lyrics):
+def analyze_with_gemini(lyrics):
+    if not lyrics:
+        return None
+
     prompt = f"""
 		You are an expert music and lyric analyst.
 
@@ -111,14 +113,16 @@ def ai_analyze(lyrics):
 
 		{lyrics}
 	"""
+    try:
+        response = client.models.generate_content(
+            model="gemini-2.0-flash-lite", contents=prompt
+        )
 
-    response = client.models.generate_content(
-        model="gemini-3.1-flash-lite", contents=prompt
-    )
+        print(response.text)
 
-    print(response.text)
-
-    return response.text
+        return json.loads(response.text)
+    except json.JSONDecodeError as e:
+        print(f"Error on analyzing with gemini: {e}")
 
 
 # TODO: add more themes later, or configure this to uhh increase accuracy maybe
@@ -142,7 +146,7 @@ themes = {
 def fetch_lyrics_from_lrclib(track_name, artist_name):
     try:
         res = requests.get(
-            f"{lrclib_base}/get?track_name={track_name}&artist_name=${artist_name}"
+            f"{lrclib_base}/get?track_name={track_name}&artist_name={artist_name}"
         )
         if res.status_code == 200:
             data = res.json()
@@ -160,7 +164,9 @@ def get_lines(lyrics):
 
 
 def get_top_tags(artist, track):
-    # get tags using last.fm api :)
+    if not artist or not track:
+        return None
+
     params = {
         "method": "track.getTopTags",
         "artist": artist,
@@ -189,7 +195,6 @@ def get_top_tags(artist, track):
 
 
 def extract_metadata(audio_file):
-    global artist, track
     try:
         audio = EasyID3(audio_file)
 
@@ -291,7 +296,7 @@ def rate_overall_theme(lyrics, themes):
 
     # overall theme
     for theme, desc in themes.items():
-        similarities = util.cos_sim(model.encode(desc), model.encode(data["lyrics"]))
+        similarities = util.cos_sim(model.encode(desc), model.encode(lyrics))
         overall_theme_score[theme] += similarities.item()
 
     return overall_theme_score
@@ -369,9 +374,12 @@ def analyze():
         # lyrics, lines, top_tags, mood = get_lyrics(audio_file)
         lyrics = get_lyrics(audio_file)
         lines = get_lines(lyrics)
+        artist, track = extract_metadata(audio_file)
         top_tags = get_top_tags(artist, track)
         mood = get_mood(lyrics)
         overall_theme_score = rate_overall_theme(lyrics, themes)
+        analyzed_lyrics = analyze_with_gemini(lyrics)
+
         lines_embedding = model.encode(lines)
 
         for line, embedding in zip(lines, lines_embedding):
@@ -381,10 +389,9 @@ def analyze():
         data["lyrics"] = lyrics
         data["mood"] = mood
         data["overall_theme_score"] = overall_theme_score
-
-        data["ai_analysis"] = json.loads(ai_analyze(lyrics))
         data["top_tags"] = top_tags
 
+        data["analyzed_lyrics"] = analyze_with_gemini(lyrics)
         output_fname = uuid.uuid4()
 
         with open(f"./outputs/{output_fname}.json", "w") as f:
