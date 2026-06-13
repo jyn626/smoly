@@ -75,7 +75,10 @@ def save_cache(file_hash, data):
         json.dump(data, f, indent=4, ensure_ascii=False)
 
 
-def ai_analyze(lyrics):
+def analyze_with_gemini(lyrics):
+    if not lyrics:
+        return None
+
     prompt = f"""
 		You are an expert music and lyric analyst.
 
@@ -111,14 +114,16 @@ def ai_analyze(lyrics):
 
 		{lyrics}
 	"""
+    try:
+        response = client.models.generate_content(
+            model="gemini-3.1-flash-lite", contents=prompt
+        )
 
-    response = client.models.generate_content(
-        model="gemini-3.1-flash-lite", contents=prompt
-    )
+        print(response.text)
 
-    print(response.text)
-
-    return response.text
+        return response.text
+    except Exception as e:
+        print(f"Error on analyzing with gemini: {e}")
 
 
 # TODO: add more themes later, or configure this to uhh increase accuracy maybe
@@ -372,6 +377,8 @@ def analyze():
         top_tags = get_top_tags(artist, track)
         mood = get_mood(lyrics)
         overall_theme_score = rate_overall_theme(lyrics, themes)
+        analyzed_lyrics = analyze_with_gemini(lyrics)
+
         lines_embedding = model.encode(lines)
 
         for line, embedding in zip(lines, lines_embedding):
@@ -381,9 +388,12 @@ def analyze():
         data["lyrics"] = lyrics
         data["mood"] = mood
         data["overall_theme_score"] = overall_theme_score
-
-        data["ai_analysis"] = json.loads(ai_analyze(lyrics))
         data["top_tags"] = top_tags
+
+        if analyzed_lyrics is not None:
+            data["analyzed_lyrics"] = json.loads(analyzed_lyrics)
+        else:
+            data["analyzed_lyrics"] = None
 
         output_fname = uuid.uuid4()
 

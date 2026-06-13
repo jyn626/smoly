@@ -78,8 +78,10 @@ window.addEventListener("DOMContentLoaded", () => {
 			const data = await response.json();
 			const song_data = data.data;
 			console.log(song_data);
-			const sectionDefinitions = song_data.ai_analysis?.sections || [];
-			const overallSummary = song_data.ai_analysis?.overall_summary || "";
+			const sectionDefinitions =
+				song_data.analyzed_lyrics?.sections || [];
+			const overallSummary =
+				song_data.analyzed_lyrics?.overall_summary || "";
 			let topTags = song_data.top_tags.toptags.tag;
 			console.log(data);
 			lyrics = song_data.lyrics;
